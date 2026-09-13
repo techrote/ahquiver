@@ -27,6 +27,7 @@ class AHQuiverApp {
         this.Modules := AQModuleHost(this)
         this.Modules.Register(F01CloseMatchingWindowsModule())
         this.Modules.Register(F02TerminalIdentityModule())
+        this.Modules.Register(F03TerminalKeyGuardModule())
         this.Ui := AQTrayUi(this)
         this.Started := false
     }
