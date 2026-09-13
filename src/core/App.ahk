@@ -64,7 +64,7 @@ class AHQuiverApp {
     }
 
     _ResolvePath(path) {
-        if RegExMatch(path, "i)^[A-Z]:\\") || SubStr(path, 1, 2) = "\\\\"
+        if RegExMatch(path, "i)^[A-Z]:\\") || SubStr(path, 1, 2) = "\\"
             return path
         return this.RootDir "\" path
     }
