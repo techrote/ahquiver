@@ -40,11 +40,17 @@ jobs:
       - name: Foundation tests
         shell: pwsh
         run: |
-          & $env:AHK_EXE /ErrorStdOut .\tests\TestRunner.ahk
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $ErrorActionPreference = 'Stop'
+          $process = Start-Process -FilePath $env:AHK_EXE -ArgumentList @('/ErrorStdOut', '.\tests\TestRunner.ahk') -NoNewWindow -Wait -PassThru
+          if ($process.ExitCode -ne 0) {
+            throw "Foundation tests failed with AutoHotkey exit code $($process.ExitCode)."
+          }
 
       - name: Headless startup probe
         shell: pwsh
         run: |
-          & $env:AHK_EXE /ErrorStdOut .\src\AHQuiver.ahk --probe-startup --headless --config .\config\ahquiver.example.ini
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $ErrorActionPreference = 'Stop'
+          $process = Start-Process -FilePath $env:AHK_EXE -ArgumentList @('/ErrorStdOut', '.\src\AHQuiver.ahk', '--probe-startup', '--headless', '--config', '.\config\ahquiver.example.ini') -NoNewWindow -Wait -PassThru
+          if ($process.ExitCode -ne 0) {
+            throw "Headless startup probe failed with AutoHotkey exit code $($process.ExitCode)."
+          }
