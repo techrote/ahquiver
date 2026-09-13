@@ -41,9 +41,17 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $process = Start-Process -FilePath $env:AHK_EXE -ArgumentList @('/ErrorStdOut', '.\tests\TestRunner.ahk') -NoNewWindow -PassThru
-          if (-not $process.WaitForExit(20000)) {
+          $stdout = Join-Path $env:RUNNER_TEMP 'ahquiver-tests.stdout.txt'
+          $stderr = Join-Path $env:RUNNER_TEMP 'ahquiver-tests.stderr.txt'
+          $process = Start-Process -FilePath $env:AHK_EXE -ArgumentList @('/ErrorStdOut', '.\tests\TestRunner.ahk') -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru
+          $timedOut = -not $process.WaitForExit(20000)
+          if ($timedOut) {
             try { $process.Kill($true) } catch { $process.Kill() }
+            $process.WaitForExit()
+          }
+          if (Test-Path $stdout) { Get-Content $stdout | ForEach-Object { Write-Host $_ } }
+          if (Test-Path $stderr) { Get-Content $stderr | ForEach-Object { Write-Host "STDERR: $_" } }
+          if ($timedOut) {
             throw 'AHQuiver tests exceeded the 20-second outer process timeout.'
           }
           if ($process.ExitCode -ne 0) {
