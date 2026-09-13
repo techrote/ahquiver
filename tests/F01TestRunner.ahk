@@ -1,4 +1,5 @@
 #Requires AutoHotkey v2.0
+#Warn All, StdOut
 
 #Include ..\src\core\Result.ahk
 #Include ..\src\core\Log.ahk
