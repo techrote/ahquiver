@@ -37,25 +37,37 @@ jobs:
           "AHK_EXE=$exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           Write-Host "Using $exe"
 
-      - name: Foundation and feature tests
+      - name: Foundation tests
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $stdout = Join-Path $env:RUNNER_TEMP 'ahquiver-tests.stdout.txt'
-          $stderr = Join-Path $env:RUNNER_TEMP 'ahquiver-tests.stderr.txt'
-          $process = Start-Process -FilePath $env:AHK_EXE -ArgumentList @('/ErrorStdOut', '.\tests\TestRunner.ahk') -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru
+          $process = Start-Process -FilePath $env:AHK_EXE -ArgumentList @('/ErrorStdOut', '.\tests\TestRunner.ahk') -NoNewWindow -Wait -PassThru
+          if ($process.ExitCode -ne 0) {
+            throw "Foundation tests failed with AutoHotkey exit code $($process.ExitCode)."
+          }
+
+      - name: F01 feature tests
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $stdout = Join-Path $env:RUNNER_TEMP 'f01-tests.stdout.txt'
+          $stderr = Join-Path $env:RUNNER_TEMP 'f01-tests.stderr.txt'
+          $progress = Join-Path $env:RUNNER_TEMP 'f01-tests.progress.txt'
+          $env:AQ_TEST_PROGRESS = $progress
+          $process = Start-Process -FilePath $env:AHK_EXE -ArgumentList @('/ErrorStdOut', '.\tests\F01TestRunner.ahk') -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru
           $timedOut = -not $process.WaitForExit(20000)
           if ($timedOut) {
             try { $process.Kill($true) } catch { $process.Kill() }
             $process.WaitForExit()
           }
-          if (Test-Path $stdout) { Get-Content $stdout | ForEach-Object { Write-Host $_ } }
-          if (Test-Path $stderr) { Get-Content $stderr | ForEach-Object { Write-Host "STDERR: $_" } }
+          if (Test-Path $progress) { Write-Host '--- F01 progress ---'; Get-Content $progress | ForEach-Object { Write-Host $_ } }
+          if (Test-Path $stdout) { Write-Host '--- F01 stdout ---'; Get-Content $stdout | ForEach-Object { Write-Host $_ } }
+          if (Test-Path $stderr) { Write-Host '--- F01 stderr ---'; Get-Content $stderr | ForEach-Object { Write-Host $_ } }
           if ($timedOut) {
-            throw 'AHQuiver tests exceeded the 20-second outer process timeout.'
+            throw 'F01 feature tests exceeded the 20-second outer process timeout.'
           }
           if ($process.ExitCode -ne 0) {
-            throw "AHQuiver tests failed with AutoHotkey exit code $($process.ExitCode)."
+            throw "F01 feature tests failed with AutoHotkey exit code $($process.ExitCode)."
           }
 
       - name: F01 real window-close smoke
