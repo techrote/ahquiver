@@ -23,9 +23,10 @@ If implementation evidence requires a cross-cutting change, update the appropria
 - `ROADMAP.md` — dependency graph and implementation order.
 - `SAFETY_AND_TESTING.md` — safety, tests and evidence requirements.
 - `TERMINAL_INTEROP.md` — Windows Terminal/conhost capability model.
+- `DEVELOPMENT.md` — concrete run, test, CI and Phase 0 service contracts.
 - `PR_MERGE_PROTOCOL.md` — branch, PR, checks, merge and reconciliation procedure.
 - `DECISIONS.md` — durable architectural decisions.
 
 ## Retrieval hints
 
-Search by stable feature ID `F01` through `F13`, or by architecture tags `CORE`, `CTX`, `ACTION`, `CFG`, `IPC`, `UI`, `TERM`.
+Search by stable feature ID `F01` through `F13`, architecture tags `CORE`, `CTX`, `ACTION`, `CFG`, `IPC`, `UI`, `TERM`, or concrete service names such as `AQActionRegistry`, `AQContextService`, `AQWindowQuery`, `AQClipboardGuard`, and `AQModuleHost`.

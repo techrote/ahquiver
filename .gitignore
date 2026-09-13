@@ -1,0 +1,4 @@
+config/ahquiver.ini
+logs/
+*.log
+*.tmp

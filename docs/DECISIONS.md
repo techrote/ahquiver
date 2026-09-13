@@ -53,3 +53,15 @@ Hardware/network adapters may request registered actions with validated paramete
 **Status:** accepted.
 
 PowerShell/Python helpers are permitted when justified by correctness or performance, but AutoHotkey remains the resident orchestration and interaction layer for this programme.
+
+## D010 — Structured action status taxonomy
+
+**Status:** accepted.
+
+The Phase 0 action result contract uses six stable states: `ok`, `cancelled`, `unsupported`, `invalid`, `rejected`, and `failed`. `invalid` covers configuration/input/action lookup errors; `rejected` is reserved for stale, ambiguous, or unsafe targets. This distinction lets UI, tests and external callers handle policy rejection differently from execution failure.
+
+## D011 — Configuration reload is in-process module re-evaluation
+
+**Status:** accepted for foundation.
+
+Configuration reload re-reads the INI source, tears down currently enabled registered modules, and re-evaluates enablement in the existing resident process. It does not restart Windows or spawn a replacement host. Feature work may introduce narrower live updates later, but must preserve deterministic teardown and disabled-module guarantees.
