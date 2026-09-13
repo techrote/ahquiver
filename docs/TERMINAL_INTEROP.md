@@ -67,7 +67,20 @@ The motivating interaction is: identify/left-click a terminal target and immedia
 - copy in many GUI/terminal selection contexts;
 - ordinary application copy outside terminals.
 
-Therefore the guard must be scoped by adapter/context and must support bypass/pass-through. Never globally convert Ctrl+C into a confirmation workflow by default.
+F03 therefore uses ordered, explicit context rules and never assumes `Ctrl+C` means interrupt globally. The module itself is disabled by default. When enabled:
+
+- a non-matching foreground context receives the original chord unchanged;
+- a matching rule can use `pass_through`, `double_tap`, `hold`, `confirm`, or `remap`;
+- the target HWND/PID/executable/class is captured again immediately before any guarded delivery;
+- a changed foreground target rejects the delayed/guarded chord rather than sending it to the new application;
+- `terminal.guard_disable` and the configured toggle can disable the main guard hotkey immediately without restarting AHQuiver;
+- a bypass hotkey and one-shot bypass action preserve an intentional interrupt path.
+
+Selection-aware copy bypass is evidence-gated. F03 checks `terminal.<kind>.can_detect_selection`; unless the capability is `supported`, it never queries a selection adapter or infers selection from title/state heuristics. Windows Terminal remains `unknown` by default for this capability.
+
+F03 decision logs contain only rule/policy/outcome plus terminal/executable/PID metadata. Terminal content and titles are excluded.
+
+See `features/F03_TERMINAL_KEY_GUARD.md` for the concrete policy/config contract.
 
 ## F05 multiline paste
 
