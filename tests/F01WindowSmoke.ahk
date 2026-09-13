@@ -4,6 +4,10 @@
 #Include ..\src\core\WindowQuery.ahk
 #Include ..\src\modules\F01_CloseMatchingWindows.ahk
 
+F01SmokeClose(guiObj, *) {
+    guiObj.Destroy()
+}
+
 smokeTitle := "AHQuiver F01 Smoke Target"
 controlTitle := "AHQuiver F01 Smoke Control"
 
@@ -11,9 +15,9 @@ targetGui := Gui(, smokeTitle)
 peerGui := Gui(, smokeTitle)
 controlGui := Gui(, controlTitle)
 
-targetGui.OnEvent("Close", (*) => targetGui.Destroy())
-peerGui.OnEvent("Close", (*) => peerGui.Destroy())
-controlGui.OnEvent("Close", (*) => controlGui.Destroy())
+targetGui.OnEvent("Close", F01SmokeClose)
+peerGui.OnEvent("Close", F01SmokeClose)
+controlGui.OnEvent("Close", F01SmokeClose)
 
 targetGui.Show("w240 h80")
 peerGui.Show("w240 h80")
