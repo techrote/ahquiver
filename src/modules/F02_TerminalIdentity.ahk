@@ -84,6 +84,7 @@ class F02PresetStore {
         if kind != "windows_terminal" && titleMode = "cli"
             return AQResult.Invalid("Preset " id " can use title_mode=cli only with windows_terminal kind")
 
+        terminalKindDefault := kind = "windows_terminal" ? "WindowsTerminal" : "unknown"
         preset := Map(
             "id", id,
             "kind", kind,
@@ -94,7 +95,7 @@ class F02PresetStore {
             "working_dir", Trim(this.Config.Get(section, "working_dir", ".")),
             "title", title,
             "title_mode", titleMode,
-            "terminal_kind", Trim(this.Config.Get(section, "terminal_kind", kind = "windows_terminal" ? "WindowsTerminal" : "unknown")),
+            "terminal_kind", Trim(this.Config.Get(section, "terminal_kind", terminalKindDefault)),
             "profile", this.Config.Get(section, "profile", ""),
             "window_name", this.Config.Get(section, "window_name", ""),
             "singleton", singleton,
@@ -156,10 +157,13 @@ class F02TitleAdapter {
                 }
 
                 verified := result.Data.Has("verified") && result.Data["verified"]
-                status := verified ? "supported" : "degraded"
-                detail := verified
-                    ? "Top-level HWND title update verified for launched process"
-                    : "Top-level title request returned but could not be verified and may be overwritten"
+                if verified {
+                    status := "supported"
+                    detail := "Top-level HWND title update verified for launched process"
+                } else {
+                    status := "degraded"
+                    detail := "Top-level title request returned but could not be verified and may be overwritten"
+                }
                 this.Capabilities.Set(capabilityId, status, detail)
                 return AQResult.Ok("Title request completed", Map(
                     "capability_status", status,
@@ -218,9 +222,10 @@ class F02LauncherService {
             return singletonResult
 
         workingDir := this._ResolvePath(preset["working_dir"])
-        args := preset["kind"] = "windows_terminal"
-            ? this._WindowsTerminalArgs(preset, workingDir)
-            : preset["args"]
+        if preset["kind"] = "windows_terminal"
+            args := this._WindowsTerminalArgs(preset, workingDir)
+        else
+            args := preset["args"]
 
         launch := this.Process.Launch(preset["program"], args, workingDir)
         if !launch.IsOk()
@@ -248,9 +253,10 @@ class F02LauncherService {
             titleDetail := "Windows Terminal CLI title requested"
         } else if preset["title_mode"] = "window" {
             titleResult := this.Title.Apply(pid, preset["title"], preset["terminal_kind"], preset["window_wait_ms"])
-            titleStatus := titleResult.IsOk() && titleResult.Data.Has("capability_status")
-                ? titleResult.Data["capability_status"]
-                : titleResult.Status
+            if titleResult.IsOk() && titleResult.Data.Has("capability_status")
+                titleStatus := titleResult.Data["capability_status"]
+            else
+                titleStatus := titleResult.Status
             titleDetail := titleResult.Message
         }
 
