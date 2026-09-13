@@ -65,3 +65,15 @@ The Phase 0 action result contract uses six stable states: `ok`, `cancelled`, `u
 **Status:** accepted for foundation.
 
 Configuration reload re-reads the INI source, tears down currently enabled registered modules, and re-evaluates enablement in the existing resident process. It does not restart Windows or spawn a replacement host. Feature work may introduce narrower live updates later, but must preserve deterministic teardown and disabled-module guarantees.
+
+## D012 — Launch identity is shared core state, not title parsing
+
+**Status:** accepted.
+
+F02 introduces `AQIdentityRegistry` as a shared core service. Project/role identity is recorded by AHQuiver at launch with preset, role, PID and lifecycle metadata. F07 and later integrations consume this registry/action surface rather than trying to rediscover identity from a mutable window title.
+
+## D013 — Windows Terminal identity uses structured CLI features
+
+**Status:** accepted.
+
+For first-class Windows Terminal presets, F02 constructs argument tokens for documented `wt.exe` named-window routing, `new-tab`, `--title`, `--suppressApplicationTitle`, profile and working-directory options. AHQuiver does not infer tab identity from top-level HWNDs, and does not treat the short-lived `wt.exe` launcher PID as a durable Terminal session PID. Sticky singleton records are therefore the default singleton mode for Windows Terminal presets.
