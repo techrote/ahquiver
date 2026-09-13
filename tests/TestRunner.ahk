@@ -70,14 +70,20 @@ TestResultStates() {
 TestConfiguration() {
     path := TestTempPath("config")
     try {
-        FileAppend("[core]`nenabled=yes`nretries=3`nbad_int=nope`n", path, "UTF-8")
+        ; Use the same Win32 INI write path as real configuration rather than
+        ; relying on text-file encoding/newline details in the fixture itself.
+        IniWrite("yes", path, "core", "enabled")
+        IniWrite("3", path, "core", "retries")
+        IniWrite("nope", path, "core", "bad_int")
+
         config := AQConfig(path)
-        AssertTrue(config.Exists())
-        AssertTrue(config.GetBool("core", "enabled", false))
-        AssertEqual(3, config.GetInt("core", "retries", 0))
-        AssertEqual(7, config.GetInt("core", "bad_int", 7))
-        AssertEqual("fallback", config.Get("missing", "key", "fallback"))
-        AssertTrue(config.Reload().IsOk())
+        AssertTrue(config.Exists(), "Temporary INI should exist")
+        AssertEqual("yes", config.Get("core", "enabled", "missing"), "INI string read")
+        AssertTrue(config.GetBool("core", "enabled", false), "Boolean yes should parse true")
+        AssertEqual(3, config.GetInt("core", "retries", 0), "Integer should parse")
+        AssertEqual(7, config.GetInt("core", "bad_int", 7), "Invalid integer should use default")
+        AssertEqual("fallback", config.Get("missing", "key", "fallback"), "Missing key should use default")
+        AssertTrue(config.Reload().IsOk(), "Readable INI should reload")
     } finally {
         TestDelete(path)
     }
@@ -210,7 +216,7 @@ class SyntheticTestApp {
 TestModuleLifecycle() {
     path := TestTempPath("modules")
     try {
-        FileAppend("[modules]`ntest.synthetic=0`n", path, "UTF-8")
+        IniWrite("0", path, "modules", "test.synthetic")
         app := SyntheticTestApp(path)
         module := SyntheticTestModule()
         host := AQModuleHost(app)
