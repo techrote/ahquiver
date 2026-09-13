@@ -29,6 +29,19 @@ Initial adapters should distinguish at least:
 
 Do not promise tab-level identity/control when only a top-level HWND is observable.
 
+## F02 terminal identity and titles
+
+F02 separates AHQuiver-owned launch identity from visible terminal title state.
+
+- `AQIdentityRegistry` stores preset, identity, role, PID/lifecycle and terminal metadata without rediscovering it from a title substring.
+- Windows Terminal presets use documented `wt.exe` launch arguments for named-window routing, `new-tab`, `--title`, `--suppressApplicationTitle`, profile and working directory.
+- A `wt.exe` launcher PID is not treated as the durable Terminal session identity because the launcher can hand work to an existing process and exit.
+- Windows Terminal singleton presets therefore default to an AHQuiver `sticky` identity record; PID singletons remain available for ordinary persistent processes.
+- Generic `title_mode=window` retitles only a revalidated visible HWND attributable to the launched PID. It is `supported` only when the resulting title is verified, `degraded` if the request cannot be verified, and unknown/unsupported when no safe HWND can be attributed.
+- `icon`/`shortcut` are metadata only in F02. No arbitrary live taskbar-icon capability is claimed.
+
+See `features/F02_TERMINAL_IDENTITY.md` for the concrete preset/action contract.
+
 ## F04 background paste research order
 
 Evaluate in this order and record reproducible evidence:
