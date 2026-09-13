@@ -27,7 +27,8 @@ If implementation evidence requires a cross-cutting change, update the appropria
 - `PR_MERGE_PROTOCOL.md` — branch, PR, checks, merge and reconciliation procedure.
 - `DECISIONS.md` — durable architectural decisions.
 - `features/F01_CLOSE_MATCHING_WINDOWS.md` — implemented F01 action, configuration, safety model and verification.
+- `features/F02_TERMINAL_IDENTITY.md` — F02 project/role presets, identity registry, singleton semantics and terminal title behavior.
 
 ## Retrieval hints
 
-Search by stable feature ID `F01` through `F13`, architecture tags `CORE`, `CTX`, `ACTION`, `CFG`, `IPC`, `UI`, `TERM`, or concrete service names such as `AQActionRegistry`, `AQContextService`, `AQWindowQuery`, `AQClipboardGuard`, and `AQModuleHost`.
+Search by stable feature ID `F01` through `F13`, architecture tags `CORE`, `CTX`, `ACTION`, `CFG`, `IPC`, `UI`, `TERM`, or concrete service names such as `AQActionRegistry`, `AQContextService`, `AQWindowQuery`, `AQClipboardGuard`, `AQIdentityRegistry`, and `AQModuleHost`.
