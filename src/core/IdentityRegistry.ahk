@@ -53,6 +53,16 @@ class AQIdentityRegistry {
         return Map()
     }
 
+    FindActiveByPid(pid) {
+        if !pid
+            return Map()
+        for _, record in this.Records {
+            if record["pid"] = pid && record["state"] = "active"
+                return this._Copy(record)
+        }
+        return Map()
+    }
+
     MarkInactive(recordId, reason := "") {
         if !this.Records.Has(recordId)
             return false

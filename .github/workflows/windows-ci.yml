@@ -116,6 +116,37 @@ jobs:
           & $wt.Source -? | Select-Object -First 20 | ForEach-Object { Write-Host $_ }
           if ($LASTEXITCODE -ne 0) { throw "wt.exe help probe failed with exit code $LASTEXITCODE" }
 
+      - name: F03 feature tests
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $stdout = Join-Path $env:RUNNER_TEMP 'f03-tests.stdout.txt'
+          $stderr = Join-Path $env:RUNNER_TEMP 'f03-tests.stderr.txt'
+          $progress = Join-Path $env:RUNNER_TEMP 'f03-tests.progress.txt'
+          $env:AQ_TEST_PROGRESS = $progress
+          $process = Start-Process -FilePath $env:AHK_EXE -ArgumentList @('/ErrorStdOut', '.\tests\F03TestRunner.ahk') -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru
+          $timedOut = -not $process.WaitForExit(20000)
+          if ($timedOut) {
+            try { $process.Kill($true) } catch { $process.Kill() }
+            $process.WaitForExit()
+          }
+          if (Test-Path $progress) { Write-Host '--- F03 progress ---'; Get-Content $progress | ForEach-Object { Write-Host $_ } }
+          if (Test-Path $stdout) { Write-Host '--- F03 stdout ---'; Get-Content $stdout | ForEach-Object { Write-Host $_ } }
+          if (Test-Path $stderr) { Write-Host '--- F03 stderr ---'; Get-Content $stderr | ForEach-Object { Write-Host $_ } }
+          if ($timedOut) { throw 'F03 feature tests exceeded the 20-second outer process timeout.' }
+          if ($process.ExitCode -ne 0) { throw "F03 feature tests failed with AutoHotkey exit code $($process.ExitCode)." }
+
+      - name: F03 enabled hotkey lifecycle probe
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $process = Start-Process -FilePath $env:AHK_EXE -ArgumentList @('/ErrorStdOut', '.\src\AHQuiver.ahk', '--probe-startup', '--headless', '--config', '.\tests\F03EnabledStartup.ini') -NoNewWindow -PassThru
+          if (-not $process.WaitForExit(20000)) {
+            try { $process.Kill($true) } catch { $process.Kill() }
+            throw 'F03 enabled startup/hotkey lifecycle probe exceeded 20 seconds.'
+          }
+          if ($process.ExitCode -ne 0) { throw "F03 enabled startup probe failed with AutoHotkey exit code $($process.ExitCode)." }
+
       - name: Headless startup probe
         shell: pwsh
         run: |
