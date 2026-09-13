@@ -20,6 +20,8 @@ The initial programme consists of 13 modules. Priority estimates reflect expecte
 
 ## F01 — Close matching windows
 
+**Implementation status:** implemented by `src/modules/F01_CloseMatchingWindows.ahk`. Operational details and configuration are canonicalized in `docs/features/F01_CLOSE_MATCHING_WINDOWS.md`.
+
 Goal: one action/hotkey closes visible windows matching the current window's configured grouping rule, useful when ungrouped taskbar buttons make Windows' built-in group close unavailable.
 
 Requirements:
@@ -28,7 +30,7 @@ Requirements:
 - use normal close semantics first (`WinClose`/WM_CLOSE), not process kill;
 - protect shell/critical windows and support per-app exclusions;
 - optional preview/confirmation mode;
-- report count closed/failed/skipped.
+- report count candidate/closed/failed/skipped/stale.
 
 ## F02 — Terminal identity / project launcher
 

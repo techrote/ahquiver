@@ -70,8 +70,6 @@ TestResultStates() {
 TestConfiguration() {
     path := TestTempPath("config")
     try {
-        ; Use the same Win32 INI write path as real configuration rather than
-        ; relying on text-file encoding/newline details in the fixture itself.
         IniWrite("yes", path, "core", "enabled")
         IniWrite("3", path, "core", "retries")
         IniWrite("nope", path, "core", "bad_int")

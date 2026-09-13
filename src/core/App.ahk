@@ -24,6 +24,7 @@ class AHQuiverApp {
         this.Actions := AQActionRegistry(this.Log)
         this.Clipboard := AQClipboardGuard()
         this.Modules := AQModuleHost(this)
+        this.Modules.Register(F01CloseMatchingWindowsModule())
         this.Ui := AQTrayUi(this)
         this.Started := false
     }
