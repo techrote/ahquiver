@@ -12,6 +12,7 @@
 #Include core\Process.ahk
 #Include core\ModuleHost.ahk
 #Include core\Ui.ahk
+#Include modules\F01_CloseMatchingWindows.ahk
 #Include core\App.ahk
 
 global AQ_APP := ""
