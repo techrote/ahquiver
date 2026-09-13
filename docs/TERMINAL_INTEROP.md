@@ -42,22 +42,24 @@ F02 separates AHQuiver-owned launch identity from visible terminal title state.
 
 See `features/F02_TERMINAL_IDENTITY.md` for the concrete preset/action contract.
 
-## F04 background paste research order
+## F04 background paste capability
 
-Evaluate in this order and record reproducible evidence:
+F04 implements the research order conservatively rather than treating API success as delivery proof.
 
-1. AHK `ControlSend` / `ControlSendText` against the target HWND/control.
-2. Window/control messages where the terminal genuinely exposes a compatible control.
-3. Documented terminal/application automation interfaces, if present.
-4. A separately named degraded mode that performs a very brief activation/send/restore cycle.
+1. A standard Win32 `Edit` adapter uses `ControlSend("^v")` addressed directly to the control HWND.
+2. A built-in self-probe places a unique temporary clipboard token, performs the send, reads back the exact Edit text and verifies that foreground HWND did not change. Only then is `terminal.standard_edit.can_background_paste` marked `supported`.
+3. Windows Terminal and conhost remain `unknown` because the current implementation has no reliable readback oracle for actual terminal input. AHQuiver does not mark them supported merely because `ControlSend` returned without error.
+4. The separately named `terminal.paste_focus_handoff` path activates the target, sends normally and restores the original foreground. It records `degraded` and is never represented as true background paste.
 
-A degraded focus-handoff mode is not equivalent to true background paste and must never be labelled as such.
+A captured F04 target contains top-level HWND/PID/executable/class, terminal classification, optional child-control HWND, adapter and capture time. The top-level target and control PID are revalidated immediately before either delivery path. Expired or stale targets are rejected.
 
-The implementation must verify target identity immediately before sending. If success cannot be observed reliably, report `unsupported` or `unknown`; do not return a false success solely because an API call did not throw.
+Supplying explicit `text` to a paste action uses `AQClipboardGuard`, so the previous complete clipboard state is restored even on failure. Existing clipboard paste does not mutate clipboard state.
+
+See `features/F04_FOCUS_PRESERVING_PASTE.md` and `evidence/F04_WINDOWS_TERMINAL_PROBE.md`.
 
 ## Gesture semantics for F04
 
-The motivating interaction is: identify/left-click a terminal target and immediately paste to it without visually drawing focus away from the user's current work. Exact gesture design may evolve, but targeting must be explicit and race-resistant. A click used purely as target selection should not accidentally activate unrelated controls or execute terminal content.
+The motivating interaction is: identify/left-click a terminal target and immediately paste to it without visually drawing focus away from the user's current work. F04 provides `terminal.paste_target_capture_mouse`, which records the window/control under the pointer without activating it, plus separate paste actions. No global left-click interception is enabled by default.
 
 ## F03 Ctrl+C semantics
 
