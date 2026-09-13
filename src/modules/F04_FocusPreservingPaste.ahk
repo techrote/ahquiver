@@ -43,9 +43,9 @@ class F04ForegroundAdapter {
     Restore(hwnd, timeoutMs := 750) {
         if !hwnd || !WinExist("ahk_id " hwnd)
             return AQResult.Failed("Original foreground window no longer exists")
-        result := this.Activate(hwnd, timeoutMs)
-        if !result.IsOk()
-            return result
+        activation := this.Activate(hwnd, timeoutMs)
+        if !activation.IsOk()
+            return activation
         return this.ActiveHwnd() = hwnd ? AQResult.Ok("Foreground restored") : AQResult.Failed("Original foreground window was not restored")
     }
 }
@@ -92,17 +92,17 @@ class F04CapabilityProbe {
         capabilityId := "terminal.standard_edit.can_background_paste"
         originalForeground := this.Foreground.ActiveHwnd()
         probeGui := Gui("+ToolWindow -Caption", "AHQuiver F04 probe")
-        edit := probeGui.AddEdit("w220 h24", "probe-before")
+        probeControl := probeGui.AddEdit("w220 h24", "probe-before")
         probeGui.Show("NA x-10000 y-10000 w240 h50")
         Sleep(30)
-        SendMessage(0xB1, 12, 12, edit.Hwnd)
+        SendMessage(0xB1, 12, 12, probeControl.Hwnd)
         token := "AQF04-" A_TickCount "-" Random(1000, 9999)
         try {
-            result := this.App.Clipboard.Run(this._ProbeWithClipboard.Bind(this, edit.Hwnd, token, originalForeground))
-            if result.IsOk()
+            probeResult := this.App.Clipboard.Run(this._ProbeWithClipboard.Bind(this, probeControl.Hwnd, token, originalForeground))
+            if probeResult.IsOk()
                 this.App.Capabilities.Set(capabilityId, "supported", "Self-probe verified ControlSend Ctrl+V into standard Edit while preserving foreground")
             else
-                this.App.Capabilities.Set(capabilityId, "unsupported", result.Message)
+                this.App.Capabilities.Set(capabilityId, "unsupported", probeResult.Message)
         } catch as probeError {
             this.App.Capabilities.Set(capabilityId, "unsupported", "Standard Edit probe failed: " probeError.Message)
         } finally {
@@ -151,8 +151,8 @@ class F04PasteService {
             return AQResult.Rejected("Target HWND is not a live attributable window")
         snapshot["terminal"] := this.App.Context.ClassifyTerminal(snapshot["exe"])
         if controlHwnd {
-            control := this.App.Windows.Describe(controlHwnd)
-            if !control["pid"] || control["pid"] != snapshot["pid"]
+            controlSnapshot := this.App.Windows.Describe(controlHwnd)
+            if !controlSnapshot["pid"] || controlSnapshot["pid"] != snapshot["pid"]
                 return AQResult.Rejected("Target control does not belong to target process")
         }
         adapter := this._AdapterFor(controlHwnd, snapshot["terminal"])
@@ -185,7 +185,8 @@ class F04PasteService {
         if target["adapter"] != "standard_edit"
             return AQResult.Unsupported("No production background adapter is implemented for " target["adapter"])
         beforeForeground := this.Foreground.ActiveHwnd()
-        operation := this._RunWithOptionalText(params, this._VerifiedEditBackgroundPaste.Bind(this, target))
+        payload := IsSet(params) ? params : Map()
+        operation := this._RunWithOptionalText(payload, this._VerifiedEditBackgroundPaste.Bind(this, target))
         afterForeground := this.Foreground.ActiveHwnd()
         if beforeForeground && afterForeground != beforeForeground {
             this.App.Capabilities.Set(capabilityId, "degraded", "A supposedly background operation changed foreground focus")
@@ -204,7 +205,8 @@ class F04PasteService {
         originalForeground := this.Foreground.ActiveHwnd()
         if !originalForeground
             return AQResult.Failed("Could not capture original foreground window")
-        action := this._RunWithOptionalText(params, this._FocusHandoffOperation.Bind(this, target, originalForeground))
+        payload := IsSet(params) ? params : Map()
+        action := this._RunWithOptionalText(payload, this._FocusHandoffOperation.Bind(this, target, originalForeground))
         if action.IsOk()
             this.App.Capabilities.Set("terminal." this._CapabilityKind(target) ".focus_handoff_paste", "degraded", "Requires temporary activation/send/restore; not true background paste")
         return action
@@ -254,9 +256,8 @@ class F04PasteService {
     }
 
     _RunWithOptionalText(params, callback) {
-        payload := IsSet(params) && IsObject(params) ? params : Map()
-        if payload.Has("text")
-            return this.App.Clipboard.Run(this._WithTemporaryClipboard.Bind(this, payload["text"] "", callback))
+        if params.Has("text")
+            return this.App.Clipboard.Run(this._WithTemporaryClipboard.Bind(this, params["text"] "", callback))
         return callback.Call("")
     }
     _WithTemporaryClipboard(text, callback) {
@@ -275,16 +276,16 @@ class F04PasteService {
         if !this.App.Windows.StillMatches(target)
             return AQResult.Rejected("Paste target became stale")
         if target["control_hwnd"] {
-            control := this.App.Windows.Describe(target["control_hwnd"])
-            if !control["pid"] || control["pid"] != target["pid"]
+            controlSnapshot := this.App.Windows.Describe(target["control_hwnd"])
+            if !controlSnapshot["pid"] || controlSnapshot["pid"] != target["pid"]
                 return AQResult.Rejected("Paste target control became stale or changed process")
         }
         return AQResult.Ok("Paste target revalidated", Map("target", target))
     }
     _AdapterFor(controlHwnd, terminalKind) {
         if controlHwnd {
-            control := this.App.Windows.Describe(controlHwnd)
-            if StrLower(control["class"]) = "edit"
+            controlSnapshot := this.App.Windows.Describe(controlHwnd)
+            if StrLower(controlSnapshot["class"]) = "edit"
                 return "standard_edit"
         }
         if terminalKind = "WindowsTerminal"
