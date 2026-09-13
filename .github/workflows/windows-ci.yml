@@ -37,13 +37,22 @@ jobs:
           "AHK_EXE=$exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           Write-Host "Using $exe"
 
-      - name: Foundation tests
+      - name: Foundation and feature tests
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
           $process = Start-Process -FilePath $env:AHK_EXE -ArgumentList @('/ErrorStdOut', '.\tests\TestRunner.ahk') -NoNewWindow -Wait -PassThru
           if ($process.ExitCode -ne 0) {
-            throw "Foundation tests failed with AutoHotkey exit code $($process.ExitCode)."
+            throw "AHQuiver tests failed with AutoHotkey exit code $($process.ExitCode)."
+          }
+
+      - name: F01 real window-close smoke
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $process = Start-Process -FilePath $env:AHK_EXE -ArgumentList @('/ErrorStdOut', '.\tests\F01WindowSmoke.ahk') -NoNewWindow -Wait -PassThru
+          if ($process.ExitCode -ne 0) {
+            throw "F01 window smoke failed with AutoHotkey exit code $($process.ExitCode)."
           }
 
       - name: Headless startup probe
