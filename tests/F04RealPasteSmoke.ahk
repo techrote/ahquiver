@@ -66,8 +66,8 @@ try {
     if app.Capabilities.Get("terminal.standard_edit.can_background_paste")["status"] != "supported"
         throw Error("Standard Edit capability was not verified supported")
 
-    probeResult := service.ProbeCapabilities()
-    if !probeResult.IsOk()
+    capabilityProbeOutcome := service.ProbeCapabilities()
+    if !capabilityProbeOutcome.IsOk()
         throw Error("Capability probe failed")
     if app.Capabilities.Get("terminal.windowsterminal.can_background_paste")["status"] != "unknown"
         throw Error("Windows Terminal true background capability must remain unknown without readback evidence")
