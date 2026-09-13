@@ -10,6 +10,8 @@
 #Include ..\src\core\ClipboardGuard.ahk
 #Include ..\src\core\Process.ahk
 #Include ..\src\core\ModuleHost.ahk
+#Include ..\src\modules\F01_CloseMatchingWindows.ahk
+#Include F01Tests.ahk
 
 global AQ_TEST_PASSED := 0
 global AQ_TEST_FAILED := 0
@@ -23,6 +25,11 @@ RunTest("window stale-target rejection", TestWindowRevalidation)
 RunTest("clipboard restore on failure", TestClipboardRestore)
 RunTest("process command quoting", TestProcessQuoting)
 RunTest("disabled and enabled module lifecycle", TestModuleLifecycle)
+RunTest("F01 executable grouping preview", TestF01ExecutableGroupingPreview)
+RunTest("F01 class and title refinement", TestF01ClassAndTitleRefinement)
+RunTest("F01 safety and close accounting", TestF01SafetyAndCloseAccounting)
+RunTest("F01 exclusions and confirmation cancel", TestF01ExclusionsAndConfirmationCancel)
+RunTest("F01 module lifecycle", TestF01ModuleLifecycle)
 
 FileAppend("`nRESULT passed=" AQ_TEST_PASSED " failed=" AQ_TEST_FAILED "`n", "*")
 ExitApp(AQ_TEST_FAILED = 0 ? 0 : 1)
