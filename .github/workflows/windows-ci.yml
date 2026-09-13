@@ -41,7 +41,11 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $process = Start-Process -FilePath $env:AHK_EXE -ArgumentList @('/ErrorStdOut', '.\tests\TestRunner.ahk') -NoNewWindow -Wait -PassThru
+          $process = Start-Process -FilePath $env:AHK_EXE -ArgumentList @('/ErrorStdOut', '.\tests\TestRunner.ahk') -NoNewWindow -PassThru
+          if (-not $process.WaitForExit(20000)) {
+            try { $process.Kill($true) } catch { $process.Kill() }
+            throw 'AHQuiver tests exceeded the 20-second outer process timeout.'
+          }
           if ($process.ExitCode -ne 0) {
             throw "AHQuiver tests failed with AutoHotkey exit code $($process.ExitCode)."
           }
