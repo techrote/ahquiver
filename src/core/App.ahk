@@ -8,7 +8,7 @@ class AHQuiverApp {
         defaultConfig := this.RootDir "\config\ahquiver.ini"
         exampleConfig := this.RootDir "\config\ahquiver.example.ini"
         if this.Options.Has("config")
-            configPath := this.Options["config"]
+            configPath := this._ResolvePath(this.Options["config"])
         else if FileExist(defaultConfig)
             configPath := defaultConfig
         else
