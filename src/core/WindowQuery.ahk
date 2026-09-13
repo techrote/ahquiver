@@ -44,6 +44,21 @@ class AQWindowQuery {
         return true
     }
 
+    RequestClose(snapshot, timeoutMs := 750) {
+        if !this.StillMatches(snapshot)
+            return AQResult.Rejected("Window target became stale before close")
+
+        selector := "ahk_id " snapshot["hwnd"]
+        waitSeconds := Max(timeoutMs, 0) / 1000.0
+        try WinClose(selector, , waitSeconds)
+        catch as err
+            return AQResult.Failed("Window close request failed: " err.Message)
+
+        if WinExist(selector)
+            return AQResult.Failed("Window did not close within configured timeout")
+        return AQResult.Ok("Window closed normally")
+    }
+
     _Safe(callback, fallback) {
         try return callback.Call()
         catch
