@@ -45,6 +45,10 @@ F01Window(hwnd, pid, exe, className, title := "") {
     )
 }
 
+F01RejectConfirmation(count, target) {
+    return false
+}
+
 TestF01ExecutableGroupingPreview() {
     target := F01Window(100, 10, "app.exe", "ClassA", "Alpha")
     windows := [
@@ -114,20 +118,30 @@ TestF01ExclusionsAndConfirmationCancel() {
         F01Window(402, 42, "app.exe", "ClassA", "Gamma")
     ]
     fake := FakeF01WindowQuery(windows)
-    confirmer := (*) => false
     service := F01CloseMatchingWindowsService(fake, Map(
         "protect_self", false,
         "protect_shell", false,
         "exclude_classes", "IgnoredClass",
         "confirm", true,
         "confirm_min", 2
-    ), confirmer)
+    ), F01RejectConfirmation)
 
     result := service.Execute(target)
     AssertEqual("cancelled", result.Status)
     AssertEqual(3, result.Data["candidate"])
     AssertEqual(1, result.Data["skipped"])
     AssertEqual(0, fake.CloseRequests.Length, "Cancelled confirmation must not close anything")
+
+    excludedService := F01CloseMatchingWindowsService(fake, Map(
+        "protect_self", false,
+        "protect_shell", false,
+        "exclude_exes", "APP.EXE",
+        "confirm", false
+    ))
+    excludedPreview := excludedService.Execute(target, Map("preview", true))
+    AssertEqual(3, excludedPreview.Data["candidate"], "Per-app exclusion still reports grouped candidates")
+    AssertEqual(3, excludedPreview.Data["skipped"], "Per-app exclusion must protect every same-exe candidate")
+    AssertEqual(0, excludedPreview.Data["windows"].Length, "Excluded app should have no closable preview items")
 }
 
 class SyntheticF01Context {
