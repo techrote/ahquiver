@@ -26,6 +26,7 @@ If implementation evidence requires a cross-cutting change, update the appropria
 - `DEVELOPMENT.md` — concrete run, test, CI and Phase 0 service contracts.
 - `PR_MERGE_PROTOCOL.md` — branch, PR, checks, merge and reconciliation procedure.
 - `DECISIONS.md` — durable architectural decisions.
+- `features/F01_CLOSE_MATCHING_WINDOWS.md` — implemented F01 action, configuration, safety model and verification.
 
 ## Retrieval hints
 
