@@ -29,7 +29,7 @@ try {
     Persistent(true)
 } catch as err {
     try FileAppend("AHQuiver startup failed: " err.Message "`n", "**")
-    if !A_IsCompiled
+    if !AQ_IsHeadlessArg()
         MsgBox("AHQuiver startup failed:`n`n" err.Message, "AHQuiver", "Iconx")
     ExitApp(1)
 }
@@ -38,4 +38,12 @@ AQ_OnExit(exitReason, exitCode) {
     global AQ_APP
     if IsObject(AQ_APP)
         try AQ_APP.Stop()
+}
+
+AQ_IsHeadlessArg() {
+    for arg in A_Args {
+        if arg = "--headless"
+            return true
+    }
+    return false
 }
