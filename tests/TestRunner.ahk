@@ -16,6 +16,8 @@
 global AQ_TEST_PASSED := 0
 global AQ_TEST_FAILED := 0
 
+SetTimer(TestWatchdog, -15000)
+
 RunTest("result states", TestResultStates)
 RunTest("configuration parsing", TestConfiguration)
 RunTest("action registry", TestActionRegistry)
@@ -31,11 +33,18 @@ RunTest("F01 safety and close accounting", TestF01SafetyAndCloseAccounting)
 RunTest("F01 exclusions and confirmation cancel", TestF01ExclusionsAndConfirmationCancel)
 RunTest("F01 module lifecycle", TestF01ModuleLifecycle)
 
+SetTimer(TestWatchdog, 0)
 FileAppend("`nRESULT passed=" AQ_TEST_PASSED " failed=" AQ_TEST_FAILED "`n", "*")
 ExitApp(AQ_TEST_FAILED = 0 ? 0 : 1)
 
+TestWatchdog() {
+    FileAppend("`nFAIL test watchdog: suite exceeded 15 seconds`n", "*")
+    ExitApp(2)
+}
+
 RunTest(name, callback) {
     global AQ_TEST_PASSED, AQ_TEST_FAILED
+    FileAppend("RUN " name "`n", "*")
     try {
         callback.Call()
         AQ_TEST_PASSED += 1
@@ -77,8 +86,6 @@ TestResultStates() {
 TestConfiguration() {
     path := TestTempPath("config")
     try {
-        ; Use the same Win32 INI write path as real configuration rather than
-        ; relying on text-file encoding/newline details in the fixture itself.
         IniWrite("yes", path, "core", "enabled")
         IniWrite("3", path, "core", "retries")
         IniWrite("nope", path, "core", "bad_int")
