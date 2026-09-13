@@ -63,21 +63,58 @@ jobs:
           if (Test-Path $progress) { Write-Host '--- F01 progress ---'; Get-Content $progress | ForEach-Object { Write-Host $_ } }
           if (Test-Path $stdout) { Write-Host '--- F01 stdout ---'; Get-Content $stdout | ForEach-Object { Write-Host $_ } }
           if (Test-Path $stderr) { Write-Host '--- F01 stderr ---'; Get-Content $stderr | ForEach-Object { Write-Host $_ } }
-          if ($timedOut) {
-            throw 'F01 feature tests exceeded the 20-second outer process timeout.'
-          }
-          if ($process.ExitCode -ne 0) {
-            throw "F01 feature tests failed with AutoHotkey exit code $($process.ExitCode)."
-          }
+          if ($timedOut) { throw 'F01 feature tests exceeded the 20-second outer process timeout.' }
+          if ($process.ExitCode -ne 0) { throw "F01 feature tests failed with AutoHotkey exit code $($process.ExitCode)." }
 
       - name: F01 real window-close smoke
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
           $process = Start-Process -FilePath $env:AHK_EXE -ArgumentList @('/ErrorStdOut', '.\tests\F01WindowSmoke.ahk') -NoNewWindow -Wait -PassThru
-          if ($process.ExitCode -ne 0) {
-            throw "F01 window smoke failed with AutoHotkey exit code $($process.ExitCode)."
+          if ($process.ExitCode -ne 0) { throw "F01 window smoke failed with AutoHotkey exit code $($process.ExitCode)." }
+
+      - name: F02 feature tests
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $stdout = Join-Path $env:RUNNER_TEMP 'f02-tests.stdout.txt'
+          $stderr = Join-Path $env:RUNNER_TEMP 'f02-tests.stderr.txt'
+          $progress = Join-Path $env:RUNNER_TEMP 'f02-tests.progress.txt'
+          $env:AQ_TEST_PROGRESS = $progress
+          $process = Start-Process -FilePath $env:AHK_EXE -ArgumentList @('/ErrorStdOut', '.\tests\F02TestRunner.ahk') -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru
+          $timedOut = -not $process.WaitForExit(20000)
+          if ($timedOut) {
+            try { $process.Kill($true) } catch { $process.Kill() }
+            $process.WaitForExit()
           }
+          if (Test-Path $progress) { Write-Host '--- F02 progress ---'; Get-Content $progress | ForEach-Object { Write-Host $_ } }
+          if (Test-Path $stdout) { Write-Host '--- F02 stdout ---'; Get-Content $stdout | ForEach-Object { Write-Host $_ } }
+          if (Test-Path $stderr) { Write-Host '--- F02 stderr ---'; Get-Content $stderr | ForEach-Object { Write-Host $_ } }
+          if ($timedOut) { throw 'F02 feature tests exceeded the 20-second outer process timeout.' }
+          if ($process.ExitCode -ne 0) { throw "F02 feature tests failed with AutoHotkey exit code $($process.ExitCode)." }
+
+      - name: F02 real process/title smoke
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $process = Start-Process -FilePath $env:AHK_EXE -ArgumentList @('/ErrorStdOut', '.\tests\F02ProcessSmoke.ahk') -NoNewWindow -PassThru
+          if (-not $process.WaitForExit(20000)) {
+            try { $process.Kill($true) } catch { $process.Kill() }
+            throw 'F02 real process smoke exceeded 20 seconds.'
+          }
+          if ($process.ExitCode -ne 0) { throw "F02 process smoke failed with AutoHotkey exit code $($process.ExitCode)." }
+
+      - name: Windows Terminal CLI availability probe
+        shell: pwsh
+        run: |
+          $wt = Get-Command wt.exe -ErrorAction SilentlyContinue
+          if (-not $wt) {
+            Write-Host 'SKIP: wt.exe is not installed on this Windows Server runner; generic Win32 F02 smoke already ran.'
+            exit 0
+          }
+          Write-Host "Windows Terminal CLI found at $($wt.Source)"
+          & $wt.Source -? | Select-Object -First 20 | ForEach-Object { Write-Host $_ }
+          if ($LASTEXITCODE -ne 0) { throw "wt.exe help probe failed with exit code $LASTEXITCODE" }
 
       - name: Headless startup probe
         shell: pwsh

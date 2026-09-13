@@ -29,6 +29,17 @@ class AQWindowQuery {
         return windows
     }
 
+    FindVisibleByPid(pid) {
+        matches := []
+        if !pid
+            return matches
+        for info in this.EnumerateVisible() {
+            if info["pid"] = pid
+                matches.Push(info)
+        }
+        return matches
+    }
+
     StillMatches(snapshot) {
         if !snapshot.Has("hwnd") || !snapshot["hwnd"]
             return false
@@ -42,6 +53,24 @@ class AQWindowQuery {
         if snapshot.Has("class") && snapshot["class"] != "" && current["class"] != snapshot["class"]
             return false
         return true
+    }
+
+    RequestTitle(snapshot, title) {
+        if !this.StillMatches(snapshot)
+            return AQResult.Rejected("Window target became stale before title update")
+        if Trim(title) = ""
+            return AQResult.Invalid("Window title cannot be empty")
+
+        selector := "ahk_id " snapshot["hwnd"]
+        try WinSetTitle(title, selector)
+        catch as err
+            return AQResult.Failed("Window title request failed: " err.Message)
+
+        observed := this._Safe(() => WinGetTitle(selector), "")
+        return AQResult.Ok("Window title request sent", Map(
+            "verified", observed = title,
+            "observed_title", observed
+        ))
     }
 
     RequestClose(snapshot, timeoutMs := 750) {

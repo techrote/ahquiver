@@ -23,8 +23,10 @@ class AHQuiverApp {
         this.Windows := AQWindowQuery()
         this.Actions := AQActionRegistry(this.Log)
         this.Clipboard := AQClipboardGuard()
+        this.Identities := AQIdentityRegistry()
         this.Modules := AQModuleHost(this)
         this.Modules.Register(F01CloseMatchingWindowsModule())
+        this.Modules.Register(F02TerminalIdentityModule())
         this.Ui := AQTrayUi(this)
         this.Started := false
     }

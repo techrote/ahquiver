@@ -6,7 +6,7 @@ Stable tags: `CORE`, `CTX`, `ACTION`, `CFG`, `IPC`, `UI`, `TERM`.
 
 AHQuiver is one resident AutoHotkey v2 process (`src/AHQuiver.ahk`) loading separately toggleable modules. Modules register actions, hotkeys, tray entries and optional timers/listeners through shared services rather than each building its own global plumbing.
 
-Current Phase 0 layout:
+Current implemented layout:
 
 ```text
 src/
@@ -19,6 +19,7 @@ src/
     WindowQuery.ahk
     ActionRegistry.ahk
     Process.ahk
+    IdentityRegistry.ahk
     ClipboardGuard.ahk
     Capability.ahk
     ModuleHost.ahk
@@ -26,6 +27,7 @@ src/
     Ui.ahk
   modules/
     F01_CloseMatchingWindows.ahk
+    F02_TerminalIdentity.ahk
     ...
     F13_PlasmaTermBpmDrift.ahk
 config/
@@ -61,13 +63,14 @@ Each module should expose a small lifecycle surface such as:
 - optional project identity/profile;
 - monotonic timestamp.
 
-`AQWindowQuery` provides reusable window descriptions/enumeration and target revalidation by HWND plus corroborating PID/executable/class metadata. Context-sensitive modules must query these services rather than duplicating fragile executable/title heuristics.
+`AQWindowQuery` provides reusable window descriptions/enumeration, PID-to-visible-window lookup, safe title requests, normal close requests and target revalidation by HWND plus corroborating PID/executable/class metadata. Context-sensitive modules must query these services rather than duplicating fragile executable/title heuristics.
 
 ## ACTION — registry
 
 User-invokable behaviours are named actions, not hard-wired hotkey bodies. Example IDs:
 
 - `windows.close_matching`
+- `terminal.launch_preset`
 - `terminal.paste_background`
 - `terminal.safe_paste`
 - `tracker.restart`
@@ -104,7 +107,11 @@ Temporary clipboard transport goes through `AQClipboardGuard`. The guard saves v
 
 ## Process execution
 
-Configured local process launches go through `AQProcess`. Feature-specific process discovery/termination may extend this service, but should preserve explicit result states and argument quoting rather than embedding opaque shell strings in UI/hotkey callbacks.
+Configured local process launches go through `AQProcess`. Arguments are quoted token-by-token with Windows command-line escaping rather than concatenated as opaque shell strings. Feature-specific process discovery/termination may extend this service, but should preserve explicit result states and argument quoting.
+
+## Shared launch identity
+
+`AQIdentityRegistry` stores AHQuiver-owned launch identity independently of a mutable window title. F02 records preset, identity, role, PID/lifecycle and terminal metadata here; F07 and later interaction layers should consume this shared state/action surface instead of importing F02 implementation classes or rediscovering identity from title text.
 
 ## Capability model
 
@@ -118,11 +125,11 @@ Transport may be local HTTP, named pipe, UDP on loopback, serial bridge or anoth
 
 ## UI — tray/control surface
 
-The Phase 0 tray is deliberately minimal: status, configuration reload, exit. A richer GUI may be added for F07/F02, but must consume the same action/config services. UI code must not contain alternate business logic for actions.
+The Phase 0 tray is deliberately minimal: status, configuration reload, exit. A richer GUI may be added for F07/F02, but must consume the same action/config/identity services. UI code must not contain alternate business logic for actions.
 
 ## TERM — terminal adapters
 
-Terminal-sensitive behaviour uses adapter/capability layers. Windows Terminal, classic console/conhost and generic GUI terminals have materially different input/selection semantics. Do not encode one successful technique as universal behaviour. See `TERMINAL_INTEROP.md`.
+Terminal-sensitive behaviour uses adapter/capability layers. Windows Terminal, classic console/conhost and generic GUI terminals have materially different input/selection semantics. Do not encode one successful technique as universal behaviour. F02 uses documented Windows Terminal launch arguments for persistent tab titles/named-window routing and never equates a top-level HWND with a tab identity. See `TERMINAL_INTEROP.md`.
 
 ## Dependencies
 
