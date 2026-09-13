@@ -27,7 +27,7 @@ configPath := A_Temp "\ahquiver-f04-smoke-" A_TickCount ".ini"
 sourceGui := Gui("+AlwaysOnTop", "F04 foreground source")
 sourceGui.AddText("w220", "This window must remain foreground")
 targetGui := Gui(, "F04 background target")
-edit := targetGui.AddEdit("w240 h24", "before")
+targetEdit := targetGui.AddEdit("w240 h24", "before")
 originalClipboard := ClipboardAll()
 
 try {
@@ -45,20 +45,20 @@ try {
 
     app := F04SmokeApp(configPath)
     service := F04PasteService(app)
-    targetSet := service.SetTarget(targetGui.Hwnd, edit.Hwnd)
+    targetSet := service.SetTarget(targetGui.Hwnd, targetEdit.Hwnd)
     if !targetSet.IsOk()
         throw Error("Could not set F04 smoke target: " targetSet.Message)
 
     A_Clipboard := "SENTINEL-F04"
     if !ClipWait(0.5)
         throw Error("Could not establish clipboard sentinel")
-    SendMessage(0xB1, 6, 6, edit.Hwnd)
+    SendMessage(0xB1, 6, 6, targetEdit.Hwnd)
     foregroundBefore := WinGetID("A")
-    background := service.BackgroundPaste(Map("text", "BG"))
-    if !background.IsOk()
-        throw Error("Verified background paste failed: " background.Message)
-    if ControlGetText(edit.Hwnd) != "beforeBG"
-        throw Error("Background target text mismatch: " ControlGetText(edit.Hwnd))
+    backgroundResult := service.BackgroundPaste(Map("text", "BG"))
+    if !backgroundResult.IsOk()
+        throw Error("Verified background paste failed: " backgroundResult.Message)
+    if ControlGetText(targetEdit.Hwnd) != "beforeBG"
+        throw Error("Background target text mismatch: " ControlGetText(targetEdit.Hwnd))
     if WinGetID("A") != foregroundBefore || foregroundBefore != sourceGui.Hwnd
         throw Error("Verified background paste changed foreground window")
     if A_Clipboard != "SENTINEL-F04"
@@ -66,24 +66,24 @@ try {
     if app.Capabilities.Get("terminal.standard_edit.can_background_paste")["status"] != "supported"
         throw Error("Standard Edit capability was not verified supported")
 
-    probe := service.ProbeCapabilities()
-    if !probe.IsOk()
+    probeResult := service.ProbeCapabilities()
+    if !probeResult.IsOk()
         throw Error("Capability probe failed")
     if app.Capabilities.Get("terminal.windowsterminal.can_background_paste")["status"] != "unknown"
         throw Error("Windows Terminal true background capability must remain unknown without readback evidence")
 
-    ControlSetText("before2", edit.Hwnd)
-    SendMessage(0xB1, 7, 7, edit.Hwnd)
+    ControlSetText("before2", targetEdit.Hwnd)
+    SendMessage(0xB1, 7, 7, targetEdit.Hwnd)
     WinActivate("ahk_id " sourceGui.Hwnd)
     WinWaitActive("ahk_id " sourceGui.Hwnd, , 1)
     A_Clipboard := "SENTINEL-F04"
-    fallback := service.FocusHandoffPaste(Map("text", "FH"))
-    if !fallback.IsOk()
-        throw Error("Focus-handoff fallback failed: " fallback.Message)
-    if fallback.Data["mode"] != "focus_handoff" || fallback.Data["capability_status"] != "degraded"
+    fallbackResult := service.FocusHandoffPaste(Map("text", "FH"))
+    if !fallbackResult.IsOk()
+        throw Error("Focus-handoff fallback failed: " fallbackResult.Message)
+    if fallbackResult.Data["mode"] != "focus_handoff" || fallbackResult.Data["capability_status"] != "degraded"
         throw Error("Fallback did not identify itself as degraded focus_handoff")
-    if ControlGetText(edit.Hwnd) != "before2FH"
-        throw Error("Fallback target text mismatch: " ControlGetText(edit.Hwnd))
+    if ControlGetText(targetEdit.Hwnd) != "before2FH"
+        throw Error("Fallback target text mismatch: " ControlGetText(targetEdit.Hwnd))
     if WinGetID("A") != sourceGui.Hwnd
         throw Error("Fallback did not restore original foreground")
     if A_Clipboard != "SENTINEL-F04"
