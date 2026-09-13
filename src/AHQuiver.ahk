@@ -15,6 +15,7 @@
 #Include core\Ui.ahk
 #Include modules\F01_CloseMatchingWindows.ahk
 #Include modules\F02_TerminalIdentity.ahk
+#Include modules\F03_TerminalKeyGuard.ahk
 #Include core\App.ahk
 
 global AQ_APP := ""
