@@ -89,7 +89,7 @@ class F01CloseMatchingWindowsService {
     }
 
     _SkipReason(info) {
-        if this._OptionBool("protect_self", true) && info.Has("pid") && info["pid"] = A_Pid
+        if this._OptionBool("protect_self", true) && info.Has("pid") && info["pid"] = ProcessExist()
             return "self"
 
         className := info.Has("class") ? StrLower(info["class"]) : ""
