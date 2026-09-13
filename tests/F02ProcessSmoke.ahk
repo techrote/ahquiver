@@ -23,67 +23,67 @@ class F02SmokeApp {
     }
 }
 
-configPath := A_Temp "\ahquiver-f02-smoke-" A_TickCount ".ini"
-pid := 0
+F02_SMOKE_CONFIG := A_Temp "\ahquiver-f02-smoke-" A_TickCount ".ini"
+F02_SMOKE_PID := 0
 try {
-    IniWrite("smoke", configPath, "F02", "presets")
-    section := "F02.preset.smoke"
-    IniWrite("process", configPath, section, "kind")
-    IniWrite("F02 Real Smoke Identity", configPath, section, "identity")
-    IniWrite("smoke", configPath, section, "role")
-    IniWrite(A_AhkPath, configPath, section, "program")
-    IniWrite(".", configPath, section, "working_dir")
-    IniWrite("F02 Real Smoke Identity", configPath, section, "title")
-    IniWrite("window", configPath, section, "title_mode")
-    IniWrite("generic", configPath, section, "terminal_kind")
-    IniWrite("1", configPath, section, "singleton")
-    IniWrite("pid", configPath, section, "singleton_mode")
-    IniWrite("3000", configPath, section, "window_wait_ms")
-    IniWrite("2", configPath, section, "arg_count")
-    IniWrite(A_ScriptDir "\F02ChildWindow.ahk", configPath, section, "arg1")
-    IniWrite("argument with spaces", configPath, section, "arg2")
+    IniWrite("smoke", F02_SMOKE_CONFIG, "F02", "presets")
+    F02_SMOKE_SECTION := "F02.preset.smoke"
+    IniWrite("process", F02_SMOKE_CONFIG, F02_SMOKE_SECTION, "kind")
+    IniWrite("F02 Real Smoke Identity", F02_SMOKE_CONFIG, F02_SMOKE_SECTION, "identity")
+    IniWrite("smoke", F02_SMOKE_CONFIG, F02_SMOKE_SECTION, "role")
+    IniWrite(A_AhkPath, F02_SMOKE_CONFIG, F02_SMOKE_SECTION, "program")
+    IniWrite(".", F02_SMOKE_CONFIG, F02_SMOKE_SECTION, "working_dir")
+    IniWrite("F02 Real Smoke Identity", F02_SMOKE_CONFIG, F02_SMOKE_SECTION, "title")
+    IniWrite("window", F02_SMOKE_CONFIG, F02_SMOKE_SECTION, "title_mode")
+    IniWrite("generic", F02_SMOKE_CONFIG, F02_SMOKE_SECTION, "terminal_kind")
+    IniWrite("1", F02_SMOKE_CONFIG, F02_SMOKE_SECTION, "singleton")
+    IniWrite("pid", F02_SMOKE_CONFIG, F02_SMOKE_SECTION, "singleton_mode")
+    IniWrite("3000", F02_SMOKE_CONFIG, F02_SMOKE_SECTION, "window_wait_ms")
+    IniWrite("2", F02_SMOKE_CONFIG, F02_SMOKE_SECTION, "arg_count")
+    IniWrite(A_ScriptDir "\F02ChildWindow.ahk", F02_SMOKE_CONFIG, F02_SMOKE_SECTION, "arg1")
+    IniWrite("argument with spaces", F02_SMOKE_CONFIG, F02_SMOKE_SECTION, "arg2")
 
-    app := F02SmokeApp(configPath)
-    service := F02LauncherService(app, F02PresetStore(app.Config))
-    result := service.Launch("smoke")
-    if !result.IsOk()
-        throw Error("F02 real launch failed: " result.Message)
+    F02_SMOKE_APP := F02SmokeApp(F02_SMOKE_CONFIG)
+    F02_SMOKE_SERVICE := F02LauncherService(F02_SMOKE_APP, F02PresetStore(F02_SMOKE_APP.Config))
+    F02_SMOKE_RESULT := F02_SMOKE_SERVICE.Launch("smoke")
+    if !F02_SMOKE_RESULT.IsOk()
+        throw Error("F02 real launch failed: " F02_SMOKE_RESULT.Message)
 
-    pid := result.Data["pid"]
-    if !pid
+    F02_SMOKE_PID := F02_SMOKE_RESULT.Data["pid"]
+    if !F02_SMOKE_PID
         throw Error("F02 real launch returned no PID")
-    if result.Data["title_status"] != "supported"
-        throw Error("Expected verified supported title, got " result.Data["title_status"] " — " result.Data["title_detail"])
+    if F02_SMOKE_RESULT.Data["title_status"] != "supported"
+        throw Error("Expected verified supported title, got " F02_SMOKE_RESULT.Data["title_status"] " — " F02_SMOKE_RESULT.Data["title_detail"])
 
-    windows := app.Windows.FindVisibleByPid(pid)
-    if windows.Length != 1
-        throw Error("Expected exactly one visible child window for launched PID, got " windows.Length)
-    if windows[1]["title"] != "F02 Real Smoke Identity"
-        throw Error("Child window title was not updated: " windows[1]["title"])
+    F02_SMOKE_WINDOWS := F02_SMOKE_APP.Windows.FindVisibleByPid(F02_SMOKE_PID)
+    if F02_SMOKE_WINDOWS.Length != 1
+        throw Error("Expected exactly one visible child window for launched PID, got " F02_SMOKE_WINDOWS.Length)
+    if F02_SMOKE_WINDOWS[1]["title"] != "F02 Real Smoke Identity"
+        throw Error("Child window title was not updated: " F02_SMOKE_WINDOWS[1]["title"])
 
-    identities := app.Identities.List(true)
-    if identities.Length != 1
-        throw Error("Expected one active identity record, got " identities.Length)
-    if identities[1]["identity"] != "F02 Real Smoke Identity"
+    F02_SMOKE_IDENTITIES := F02_SMOKE_APP.Identities.List(true)
+    if F02_SMOKE_IDENTITIES.Length != 1
+        throw Error("Expected one active identity record, got " F02_SMOKE_IDENTITIES.Length)
+    if F02_SMOKE_IDENTITIES[1]["identity"] != "F02 Real Smoke Identity"
         throw Error("Identity registry mismatch")
 
-    duplicate := service.Launch("smoke")
-    if duplicate.Status != "rejected"
+    F02_SMOKE_DUPLICATE := F02_SMOKE_SERVICE.Launch("smoke")
+    if F02_SMOKE_DUPLICATE.Status != "rejected"
         throw Error("Running PID singleton did not reject duplicate launch")
 
-    closeResult := app.Windows.RequestClose(windows[1], 2000)
-    if !closeResult.IsOk()
-        throw Error("Could not close F02 smoke child normally: " closeResult.Message)
-    try ProcessWaitClose(pid, 3)
+    F02_SMOKE_CLOSE := F02_SMOKE_APP.Windows.RequestClose(F02_SMOKE_WINDOWS[1], 2000)
+    if !F02_SMOKE_CLOSE.IsOk()
+        throw Error("Could not close F02 smoke child normally: " F02_SMOKE_CLOSE.Message)
+    try ProcessWaitClose(F02_SMOKE_PID, 3)
 
     FileAppend("PASS F02 real process launch/title/singleton smoke`n", "*")
     ExitApp(0)
-} catch as err {
-    if pid {
-        try ProcessClose(pid)
+} catch as F02_SMOKE_ERR {
+    if F02_SMOKE_PID {
+        try ProcessClose(F02_SMOKE_PID)
     }
-    FileAppend("FAIL F02 real process launch/title/singleton smoke: " err.Message "`n", "*")
+    FileAppend("FAIL F02 real process launch/title/singleton smoke: " F02_SMOKE_ERR.Message "`n", "*")
     ExitApp(1)
 } finally {
-    try FileDelete(configPath)
+    try FileDelete(F02_SMOKE_CONFIG)
 }
