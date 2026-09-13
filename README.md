@@ -20,7 +20,7 @@ The initial programme implements 13 concrete utilities identified from real work
 
 ## Start here
 
-Agents and contributors should read [`docs/README.md`](docs/README.md) first. It defines the canonical RAG pack and document authority.
+Agents and contributors should read [`docs/README.md`](docs/README.md) first. It defines the canonical RAG pack and document authority. For concrete setup and test commands, see [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md).
 
 ## Design stance
 
@@ -31,6 +31,28 @@ Agents and contributors should read [`docs/README.md`](docs/README.md) first. It
 - Destructive or focus-sensitive actions require explicit safety rules, capability checks and test evidence.
 - Experimental functionality must degrade safely rather than pretending unsupported Windows behaviours are reliable.
 
+## Current implementation
+
+Phase 0 establishes the resident host and shared infrastructure used by F01-F13:
+
+- structured action results and named action registry;
+- dependency-free INI configuration with all feature modules disabled by default;
+- centralized active-window/process/terminal context and HWND revalidation;
+- explicit capability states;
+- clipboard preservation guard;
+- process launch wrapper;
+- module lifecycle host;
+- minimal tray status/reload/exit controls;
+- deterministic AHK test harness and Windows CI.
+
+Launch with AutoHotkey v2:
+
+```powershell
+AutoHotkey64.exe .\src\AHQuiver.ahk
+```
+
+Local overrides belong in `config\ahquiver.ini`, which is intentionally ignored by Git.
+
 ## Programme status
 
-The repository begins as a planning-first implementation programme. The roadmap and autonomous issue prompts are intentionally repository-native so future agents can execute issues independently and reconcile the canonical documentation as the implementation evolves.
+The repository is planning-driven but no longer planning-only. GitHub issues are the executable work queue; implementation PRs must preserve the RAG contracts, add tests/evidence, pass configured checks, merge to `main`, and reconcile durable documentation when behaviour changes.
