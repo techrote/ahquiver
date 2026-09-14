@@ -66,6 +66,22 @@ class F05TestLog {
     }
 }
 
+class F05InvalidPatternConfig {
+    Get(section, key, default := "") {
+        if section = "F05" && key = "pattern1"
+            return "(?"
+        return default
+    }
+    GetInt(section, key, default := 0) {
+        if section = "F05" && key = "pattern_count"
+            return 1
+        return default
+    }
+    GetBool(section, key, default := false) {
+        return default
+    }
+}
+
 class F05TestApp {
     __New(configPath, context, windows) {
         this.Config := AQConfig(configPath)
@@ -199,12 +215,11 @@ TestF05ControlCharactersRejected() {
 }
 
 TestF05InvalidPatternIsLocalConfigFailure() {
-    config := F05TempPath("bad-regex-config")
-    FileAppend("[F05]`npattern_count=1`npattern1=(?`n", config, "UTF-8")
+    config := F05Config()
     try {
         target := F05Target()
         app := F05TestApp(config, F05FakeContext([target]), F05FakeWindows(true))
-        AssertF05Equal("(?", app.Config.Get("F05", "pattern1", ""), "fixture must survive INI round-trip")
+        app.Config := F05InvalidPatternConfig()
         threw := false
         try F05MultilinePasteService(app, F05FakeTransport())
         catch
