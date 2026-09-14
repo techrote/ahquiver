@@ -7,7 +7,10 @@
 #Include ..\src\modules\F09_ControllerBridge.ahk
 
 class F09Cfg {
-    __New() { this.V := Map(), this.Path := "F09Test.ini" }
+    __New() {
+        this.V := Map()
+        this.Path := "F09Test.ini"
+    }
     Set(s,k,v) => this.V[s "|" k] := v ""
     Get(s,k,d := "") => this.V.Has(s "|" k) ? this.V[s "|" k] : d
     GetInt(s,k,d := 0) {
@@ -19,8 +22,24 @@ class F09Cfg {
         return v="1" || v="true" || v="yes" || v="on"
     }
 }
-class F09Log { Info(*) { return } Warn(*) { return } Error(*) { return } }
-class F09FakeClock { __New(n:=1000) { this.N:=n } Now() => this.N Advance(ms) => this.N += ms }
+class F09Log {
+    Info(*) {
+        return
+    }
+    Warn(*) {
+        return
+    }
+    Error(*) {
+        return
+    }
+}
+class F09FakeClock {
+    __New(n:=1000) {
+        this.N:=n
+    }
+    Now() => this.N
+    Advance(ms) => this.N += ms
+}
 class F09App {
     __New(cfg) {
         this.Config:=cfg, this.Log:=F09Log(), this.Actions:=AQActionRegistry(this.Log), this.Capabilities:=AQCapabilityRegistry(), this.Calls:=[]
@@ -107,10 +126,19 @@ TestInvalidMappingLocal() {
 passed:=0, failed:=0, progress:=EnvGet("AQ_TEST_PROGRESS")
 tests:=[TestProtocol,TestValidButtonAndEncoder,TestUnknownAndInvalidValues,TestDebounceAndSequence,TestRateLimit,TestDisconnectedReconnectAndPoll,TestDisabled,TestInvalidMappingLocal]
 for fn in tests {
-    try { fn.Call(), passed+=1, FileAppend("PASS " fn.Name "`n","*") }
-    catch as testError { failed+=1, FileAppend("FAIL " fn.Name ": " testError.Message "`n","*") }
+    try {
+        fn.Call(), passed+=1, FileAppend("PASS " fn.Name "`n","*")
+    } catch as testError {
+        failed+=1, FileAppend("FAIL " fn.Name ": " testError.Message "`n","*")
+    }
 }
 FileAppend("RESULT passed=" passed " failed=" failed "`n","*")
 ExitApp(failed?1:0)
-A9(v,m:="expected true") { if !v throw Error(m) }
-E9(e,a,m:="") { if e != a throw Error((m!=""?m ": ":"") "expected=" e " actual=" a) }
+A9(v,m:="expected true") {
+    if !v
+        throw Error(m)
+}
+E9(e,a,m:="") {
+    if e != a
+        throw Error((m!=""?m ": ":"") "expected=" e " actual=" a)
+}
