@@ -120,10 +120,22 @@ TestF10IniAnsiFixtureEndToEnd() {
 passed:=0,failed:=0
 tests:=[TestF10MappingAndDelete,TestF10StaleSession,TestF10StaleSourceHash,TestF10GeneratedAndGapUnsupported,TestF10UnsupportedSelection,TestF10RollbackFixture,TestF10PreviewTokenStale,TestF10IniAnsiFixtureEndToEnd]
 for fn in tests {
-    try { fn.Call(),passed+=1,FileAppend("PASS " fn.Name "`n","*") }
-    catch as testError { failed+=1,FileAppend("FAIL " fn.Name ": " testError.Message "`n","*") }
+    try {
+        fn.Call()
+        passed += 1
+        FileAppend("PASS " fn.Name "`n","*")
+    } catch as testError {
+        failed += 1
+        FileAppend("FAIL " fn.Name ": " testError.Message "`n","*")
+    }
 }
 FileAppend("RESULT passed=" passed " failed=" failed "`n","*")
 ExitApp(failed?1:0)
-A10(v,m:="expected true") { if !v throw Error(m) }
-E10(e,a,m:="") { if e != a throw Error((m!=""?m ": ":"") "expected=" e " actual=" a) }
+A10(v,m:="expected true") {
+    if !v
+        throw Error(m)
+}
+E10(e,a,m:="") {
+    if e != a
+        throw Error((m!=""?m ": ":"") "expected=" e " actual=" a)
+}
