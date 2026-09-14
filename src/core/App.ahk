@@ -29,6 +29,7 @@ class AHQuiverApp {
         this.Modules.Register(F02TerminalIdentityModule())
         this.Modules.Register(F03TerminalKeyGuardModule())
         this.Modules.Register(F04FocusPreservingPasteModule())
+        this.Modules.Register(F05MultilinePasteModule())
         this.Ui := AQTrayUi(this)
         this.Started := false
     }
@@ -36,11 +37,9 @@ class AHQuiverApp {
     Start() {
         if this.Started
             return AQResult.Ok("AHQuiver already started")
-
         configResult := this.Config.Reload()
         if !configResult.IsOk()
             throw Error(configResult.Message)
-
         this.Log.Info("host=start config=" this.Config.Path)
         this.Modules.StartConfigured()
         if !this.Options.Has("headless")
