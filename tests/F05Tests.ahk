@@ -199,7 +199,7 @@ TestF05ControlCharactersRejected() {
 }
 
 TestF05InvalidPatternIsLocalConfigFailure() {
-    config := F05Config("pattern_count=1`npattern1=([`n")
+    config := F05Config("pattern_count=1`npattern1=[abc`n")
     try {
         target := F05Target()
         app := F05TestApp(config, F05FakeContext([target]), F05FakeWindows(true))
