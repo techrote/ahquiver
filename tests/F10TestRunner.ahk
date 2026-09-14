@@ -17,11 +17,18 @@ class F10FakeSelection {
     }
 }
 class F10FakeMapProvider {
-    __New(contract) { this.Contract := contract }
+    __New(contract) {
+        this.Contract := contract
+    }
     Load() => AQResult.Ok("fixture map", Map("contract",this.Contract))
 }
 class F10MemoryStore {
-    __New(text, path := "memory://doc") { this.Text:=text, this.Path:=path, this.FailDelete:=false, this.RollbackCount:=0 }
+    __New(text, path := "memory://doc") {
+        this.Text:=text
+        this.Path:=path
+        this.FailDelete:=false
+        this.RollbackCount:=0
+    }
     Snapshot(path) {
         return AQResult.Ok("memory snapshot",Map("text",this.Text,"hash",F10Fingerprint.Hash(this.Text),"length",StrLen(this.Text)))
     }
