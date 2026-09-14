@@ -18,6 +18,7 @@
 #Include modules\F03_TerminalKeyGuard.ahk
 #Include modules\F04_FocusPreservingPaste.ahk
 #Include modules\F05_MultilinePaste.ahk
+#Include modules\F06_TrackerRestart.ahk
 #Include core\App.ahk
 
 global AQ_APP := ""
