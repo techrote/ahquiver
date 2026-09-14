@@ -293,9 +293,11 @@ F07ContainsId(items, id) {
 
 F07ContainsState(items, id, state) {
     for item in items {
-        if item["id"] = id && item["state"] = state
+        if item["id"] != id
+            continue
+        if item.Has("state") && item["state"] = state
             return true
-        if item["id"] = id && item.Has("status") && item["status"] = state
+        if item.Has("status") && item["status"] = state
             return true
     }
     return false
