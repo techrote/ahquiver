@@ -35,7 +35,8 @@ If implementation evidence requires a cross-cutting change, update the appropria
 - `features/F07_CONTROL_SURFACE.md` — F07 registry-driven tray/panel, generic action dispatch, state views and payload-free failure history.
 - `features/F08_KEYBIND_PROFILES.md` — F08 external keybind configuration, context profiles, precedence, conflict diagnostics and emergency bypass.
 - `features/F09_CONTROLLER_BRIDGE.md` — F09 serial controller protocol, local allowlist mappings, validation, rate controls and synthetic test source.
+- `features/F10_SOURCE_MAP_EDIT.md` — F10 experimental cooperating-renderer source map, validation and transactional source edit contract.
 
 ## Retrieval hints
 
-Search by stable feature ID `F01` through `F13`, architecture tags `CORE`, `CTX`, `ACTION`, `CFG`, `IPC`, `UI`, `TERM`, or concrete service names such as `AQActionRegistry`, `AQContextService`, `AQWindowQuery`, `AQClipboardGuard`, `AQIdentityRegistry`, `F06TrackerRegistry`, `AQControlSurfaceModel`, `F08Resolver`, `F08BindingStore`, `F09ControllerService`, `F09Protocol`, `AQTrayUi`, and `AQModuleHost`.
+Search by stable feature ID `F01` through `F13`, architecture tags `CORE`, `CTX`, `ACTION`, `CFG`, `IPC`, `UI`, `TERM`, or concrete service names such as `AQActionRegistry`, `AQContextService`, `AQWindowQuery`, `AQClipboardGuard`, `AQIdentityRegistry`, `F06TrackerRegistry`, `AQControlSurfaceModel`, `F08Resolver`, `F09ControllerService`, `F10SourceMapContract`, `F10EditService`, `AQTrayUi`, and `AQModuleHost`.

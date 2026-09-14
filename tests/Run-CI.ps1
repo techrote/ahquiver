@@ -63,6 +63,8 @@ Invoke-AhkGate 'F08 feature tests' @('/ErrorStdOut', '.\tests\F08TestRunner.ahk'
 Invoke-AhkGate 'F08 enabled profile/hotkey lifecycle probe' @('/ErrorStdOut', '.\src\AHQuiver.ahk', '--probe-startup', '--headless', '--config', '.\tests\F08EnabledStartup.ini')
 Invoke-AhkGate 'F09 feature tests' @('/ErrorStdOut', '.\tests\F09TestRunner.ahk')
 Invoke-AhkGate 'F09 enabled synthetic-source lifecycle probe' @('/ErrorStdOut', '.\src\AHQuiver.ahk', '--probe-startup', '--headless', '--config', '.\tests\F09EnabledStartup.ini')
+Invoke-AhkGate 'F10 feature tests' @('/ErrorStdOut', '.\tests\F10TestRunner.ahk')
+Invoke-AhkGate 'F10 unsupported-safe startup probe' @('/ErrorStdOut', '.\src\AHQuiver.ahk', '--probe-startup', '--headless', '--config', '.\tests\F10EnabledStartup.ini')
 Invoke-AhkGate 'Headless startup probe' @('/ErrorStdOut', '.\src\AHQuiver.ahk', '--probe-startup', '--headless', '--config', '.\config\ahquiver.example.ini')
 
 Write-Host 'ALL WINDOWS CI GATES PASSED'
