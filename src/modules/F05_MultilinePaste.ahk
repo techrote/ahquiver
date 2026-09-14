@@ -180,7 +180,7 @@ class F05MultilinePasteService {
             pattern := this.App.Config.Get("F05", "pattern" A_Index, "")
             if pattern = ""
                 continue
-            try RegExMatch("", pattern)
+            try RegExMatch("AHQuiver-validation", pattern)
             catch as err
                 throw ValueError("Invalid F05 pattern" A_Index ": " err.Message)
             patterns.Push(pattern)
