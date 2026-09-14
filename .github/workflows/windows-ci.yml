@@ -175,6 +175,22 @@ jobs:
           if (-not $process.WaitForExit(20000)) { try { $process.Kill($true) } catch { $process.Kill() }; throw 'F07 startup/tray probe exceeded timeout.' }
           if ($process.ExitCode -ne 0) { throw "F07 startup/tray probe failed: $($process.ExitCode)" }
 
+      - name: F08 feature tests
+        shell: pwsh
+        run: |
+          $stdout = Join-Path $env:RUNNER_TEMP 'f08-tests.stdout.txt'; $stderr = Join-Path $env:RUNNER_TEMP 'f08-tests.stderr.txt'; $progress = Join-Path $env:RUNNER_TEMP 'f08-tests.progress.txt'; $env:AQ_TEST_PROGRESS = $progress
+          $process = Start-Process -FilePath $env:AHK_EXE -ArgumentList @('/ErrorStdOut', '.\tests\F08TestRunner.ahk') -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru
+          $timedOut = -not $process.WaitForExit(20000); if ($timedOut) { try { $process.Kill($true) } catch { $process.Kill() }; $process.WaitForExit() }
+          if (Test-Path $progress) { Write-Host '--- F08 progress ---'; Get-Content $progress | ForEach-Object { Write-Host $_ } }; if (Test-Path $stdout) { Write-Host '--- F08 stdout ---'; Get-Content $stdout | ForEach-Object { Write-Host $_ } }; if (Test-Path $stderr) { Write-Host '--- F08 stderr ---'; Get-Content $stderr | ForEach-Object { Write-Host $_ } }
+          if ($timedOut) { throw 'F08 feature tests exceeded timeout.' }; if ($process.ExitCode -ne 0) { throw "F08 feature tests failed: $($process.ExitCode)" }
+
+      - name: F08 enabled profile/hotkey lifecycle probe
+        shell: pwsh
+        run: |
+          $process = Start-Process -FilePath $env:AHK_EXE -ArgumentList @('/ErrorStdOut', '.\src\AHQuiver.ahk', '--probe-startup', '--headless', '--config', '.\tests\F08EnabledStartup.ini') -NoNewWindow -PassThru
+          if (-not $process.WaitForExit(20000)) { try { $process.Kill($true) } catch { $process.Kill() }; throw 'F08 startup probe exceeded timeout.' }
+          if ($process.ExitCode -ne 0) { throw "F08 startup probe failed: $($process.ExitCode)" }
+
       - name: Headless startup probe
         shell: pwsh
         run: |

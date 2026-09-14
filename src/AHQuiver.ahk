@@ -20,6 +20,7 @@
 #Include modules\F05_MultilinePaste.ahk
 #Include modules\F06_TrackerRestart.ahk
 #Include modules\F07_ControlSurface.ahk
+#Include modules\F08_KeybindProfiles.ahk
 #Include core\App.ahk
 
 global AQ_APP := ""
