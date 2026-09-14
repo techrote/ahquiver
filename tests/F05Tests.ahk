@@ -200,10 +200,11 @@ TestF05ControlCharactersRejected() {
 
 TestF05InvalidPatternIsLocalConfigFailure() {
     config := F05TempPath("bad-regex-config")
-    FileAppend("[F05]`npattern_count=1`npattern1=[abc`n", config, "UTF-8")
+    FileAppend("[F05]`npattern_count=1`npattern1=\`n", config, "UTF-8")
     try {
         target := F05Target()
         app := F05TestApp(config, F05FakeContext([target]), F05FakeWindows(true))
+        AssertF05Equal("\", app.Config.Get("F05", "pattern1", ""), "fixture must preserve trailing backslash")
         threw := false
         try F05MultilinePasteService(app, F05FakeTransport())
         catch
