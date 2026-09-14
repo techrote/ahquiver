@@ -106,8 +106,8 @@ try {
     if !F07SmokeHasActionRow(ui, "late.dynamic")
         throw Error("Late-added action row was not dynamically mapped")
 
-    result := ui.ControlModel.Invoke("params.echo", "preset=audit`nrole=reviewer")
-    if !result.IsOk()
+    dispatchResult := ui.ControlModel.Invoke("params.echo", "preset=audit`nrole=reviewer")
+    if !dispatchResult.IsOk()
         throw Error("Generic parameter dispatch failed")
     if app.InvokedParams["preset"] != "audit" || app.InvokedParams["role"] != "reviewer"
         throw Error("Control model did not dispatch parsed params through registry")
