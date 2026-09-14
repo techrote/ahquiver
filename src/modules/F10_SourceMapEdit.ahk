@@ -18,7 +18,9 @@ class F10UnsupportedSelectionAdapter {
     }
 }
 class F10IniSelectionAdapter {
-    __New(path) { this.Path := path }
+    __New(path) {
+        this.Path := path
+    }
     Capture() {
         if this.Path = "" || !FileExist(this.Path)
             return AQResult.Unsupported("Selection snapshot is unavailable")
@@ -93,7 +95,9 @@ class F10SourceMapContract {
     }
 }
 class F10IniMapProvider {
-    __New(path) { this.Path:=path }
+    __New(path) {
+        this.Path := path
+    }
     Load() {
         if this.Path="" || !FileExist(this.Path)
             return AQResult.Unsupported("Cooperating renderer source map is unavailable")
