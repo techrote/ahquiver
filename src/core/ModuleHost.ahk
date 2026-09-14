@@ -73,4 +73,33 @@ class AQModuleHost {
     State(id) {
         return this.States.Has(id) ? this.States[id] : "unknown"
     }
+
+    List() {
+        items := []
+        for id, module in this.Modules {
+            items.Push(Map(
+                "id", id,
+                "state", this.State(id)
+            ))
+        }
+        this._SortById(items)
+        return items
+    }
+
+    _SortById(items) {
+        count := items.Length
+        if count < 2
+            return
+        Loop count - 1 {
+            left := A_Index
+            Loop count - left {
+                right := left + A_Index
+                if StrCompare(items[left]["id"], items[right]["id"], false) > 0 {
+                    swap := items[left]
+                    items[left] := items[right]
+                    items[right] := swap
+                }
+            }
+        }
+    }
 }

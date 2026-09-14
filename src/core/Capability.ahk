@@ -15,7 +15,7 @@ class AQCapabilityRegistry {
 
     Get(id) {
         if this.Items.Has(id)
-            return this.Items[id]
+            return this._Copy(this.Items[id])
         return Map("status", "unknown", "detail", "", "updated_at", 0)
     }
 
@@ -25,5 +25,40 @@ class AQCapabilityRegistry {
 
     Count() {
         return this.Items.Count
+    }
+
+    List() {
+        items := []
+        for id, entry in this.Items {
+            item := this._Copy(entry)
+            item["id"] := id
+            items.Push(item)
+        }
+        this._SortById(items)
+        return items
+    }
+
+    _SortById(items) {
+        count := items.Length
+        if count < 2
+            return
+        Loop count - 1 {
+            left := A_Index
+            Loop count - left {
+                right := left + A_Index
+                if StrCompare(items[left]["id"], items[right]["id"], false) > 0 {
+                    swap := items[left]
+                    items[left] := items[right]
+                    items[right] := swap
+                }
+            }
+        }
+    }
+
+    _Copy(source) {
+        copy := Map()
+        for key, value in source
+            copy[key] := value
+        return copy
     }
 }
