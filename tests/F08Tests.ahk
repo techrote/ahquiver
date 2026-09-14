@@ -23,9 +23,15 @@ class F08TestConfig {
 }
 
 class F08TestLog {
-    Info(*) { return }
-    Warn(*) { return }
-    Error(*) { return }
+    Info(*) {
+        return
+    }
+    Warn(*) {
+        return
+    }
+    Error(*) {
+        return
+    }
 }
 
 class F08TestContext {
@@ -228,8 +234,8 @@ TestF08EmergencyBypass() {
     bindings := F08BindingStore(cfg, app.Actions, profiles)
     resolver := F08Resolver(app, profiles, bindings)
     resolver.SetBypass(true)
-    result := resolver.Dispatch("^!s")
-    AssertF08Equal("cancelled", result.Status)
+    dispatchResult := resolver.Dispatch("^!s")
+    AssertF08Equal("cancelled", dispatchResult.Status)
     AssertF08Equal(0, app.Calls.Length)
     resolver.SetBypass(false)
     AssertF08True(resolver.Dispatch("^!s").IsOk())
@@ -249,9 +255,9 @@ TestF08IdentityContextUsesSharedRegistry() {
     profiles := F08ProfileStore(cfg)
     bindings := F08BindingStore(cfg, app.Actions, profiles)
     resolver := F08Resolver(app, profiles, bindings)
-    result := resolver.Resolve("^!i")
-    AssertF08True(result.IsOk())
-    AssertF08Equal("identity_binding", result.Data["binding"])
+    resolution := resolver.Resolve("^!i")
+    AssertF08True(resolution.IsOk())
+    AssertF08Equal("identity_binding", resolution.Data["binding"])
 }
 
 TestF08ModuleReloadAndTeardown() {
