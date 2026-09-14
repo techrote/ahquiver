@@ -23,6 +23,7 @@
 #Include modules\F08_KeybindProfiles.ahk
 #Include modules\F09_ControllerBridge.ahk
 #Include modules\F10_SourceMapEdit.ahk
+#Include modules\F11_ObservationLedger.ahk
 #Include core\App.ahk
 
 global AQ_APP := ""
