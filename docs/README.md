@@ -34,7 +34,8 @@ If implementation evidence requires a cross-cutting change, update the appropria
 - `features/F06_TRACKER_RESTART.md` — F06 owned-PID tracker registry, graceful/force restart sequence, adoption and worker protection.
 - `features/F07_CONTROL_SURFACE.md` — F07 registry-driven tray/panel, generic action dispatch, state views and payload-free failure history.
 - `features/F08_KEYBIND_PROFILES.md` — F08 external keybind configuration, context profiles, precedence, conflict diagnostics and emergency bypass.
+- `features/F09_CONTROLLER_BRIDGE.md` — F09 serial controller protocol, local allowlist mappings, validation, rate controls and synthetic test source.
 
 ## Retrieval hints
 
-Search by stable feature ID `F01` through `F13`, architecture tags `CORE`, `CTX`, `ACTION`, `CFG`, `IPC`, `UI`, `TERM`, or concrete service names such as `AQActionRegistry`, `AQContextService`, `AQWindowQuery`, `AQClipboardGuard`, `AQIdentityRegistry`, `F06TrackerRegistry`, `AQControlSurfaceModel`, `F08Resolver`, `F08BindingStore`, `AQTrayUi`, and `AQModuleHost`.
+Search by stable feature ID `F01` through `F13`, architecture tags `CORE`, `CTX`, `ACTION`, `CFG`, `IPC`, `UI`, `TERM`, or concrete service names such as `AQActionRegistry`, `AQContextService`, `AQWindowQuery`, `AQClipboardGuard`, `AQIdentityRegistry`, `F06TrackerRegistry`, `AQControlSurfaceModel`, `F08Resolver`, `F08BindingStore`, `F09ControllerService`, `F09Protocol`, `AQTrayUi`, and `AQModuleHost`.
