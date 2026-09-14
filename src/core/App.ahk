@@ -33,6 +33,7 @@ class AHQuiverApp {
         this.Modules.Register(F06TrackerRestartModule())
         this.Modules.Register(F07ControlSurfaceModule())
         this.Modules.Register(F08KeybindProfilesModule())
+        this.Modules.Register(F09ControllerBridgeModule())
         this.Ui := AQTrayUi(this)
         this.Started := false
     }
