@@ -129,6 +129,29 @@ jobs:
           if (-not $process.WaitForExit(20000)) { try { $process.Kill($true) } catch { $process.Kill() }; throw 'F05 startup probe exceeded timeout.' }
           if ($process.ExitCode -ne 0) { throw "F05 startup probe failed: $($process.ExitCode)" }
 
+      - name: F06 feature tests
+        shell: pwsh
+        run: |
+          $stdout = Join-Path $env:RUNNER_TEMP 'f06-tests.stdout.txt'; $stderr = Join-Path $env:RUNNER_TEMP 'f06-tests.stderr.txt'; $progress = Join-Path $env:RUNNER_TEMP 'f06-tests.progress.txt'; $env:AQ_TEST_PROGRESS = $progress
+          $process = Start-Process -FilePath $env:AHK_EXE -ArgumentList @('/ErrorStdOut', '.\tests\F06TestRunner.ahk') -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru
+          $timedOut = -not $process.WaitForExit(20000); if ($timedOut) { try { $process.Kill($true) } catch { $process.Kill() }; $process.WaitForExit() }
+          if (Test-Path $progress) { Write-Host '--- F06 progress ---'; Get-Content $progress | ForEach-Object { Write-Host $_ } }; if (Test-Path $stdout) { Write-Host '--- F06 stdout ---'; Get-Content $stdout | ForEach-Object { Write-Host $_ } }; if (Test-Path $stderr) { Write-Host '--- F06 stderr ---'; Get-Content $stderr | ForEach-Object { Write-Host $_ } }
+          if ($timedOut) { throw 'F06 feature tests exceeded timeout.' }; if ($process.ExitCode -ne 0) { throw "F06 feature tests failed: $($process.ExitCode)" }
+
+      - name: F06 real worker-safe tracker restart smoke
+        shell: pwsh
+        run: |
+          $process = Start-Process -FilePath $env:AHK_EXE -ArgumentList @('/ErrorStdOut', '.\tests\F06ProcessSmoke.ahk') -NoNewWindow -PassThru
+          if (-not $process.WaitForExit(30000)) { try { $process.Kill($true) } catch { $process.Kill() }; throw 'F06 process smoke exceeded timeout.' }
+          if ($process.ExitCode -ne 0) { throw "F06 process smoke failed: $($process.ExitCode)" }
+
+      - name: F06 enabled module startup probe
+        shell: pwsh
+        run: |
+          $process = Start-Process -FilePath $env:AHK_EXE -ArgumentList @('/ErrorStdOut', '.\src\AHQuiver.ahk', '--probe-startup', '--headless', '--config', '.\tests\F06EnabledStartup.ini') -NoNewWindow -PassThru
+          if (-not $process.WaitForExit(20000)) { try { $process.Kill($true) } catch { $process.Kill() }; throw 'F06 startup probe exceeded timeout.' }
+          if ($process.ExitCode -ne 0) { throw "F06 startup probe failed: $($process.ExitCode)" }
+
       - name: Headless startup probe
         shell: pwsh
         run: |
