@@ -34,10 +34,10 @@ for test in tests {
         passed += 1
         F08Progress("PASS " name)
         FileAppend("PASS " name "`n", "*")
-    } catch as err {
+    } catch as testError {
         failed += 1
-        F08Progress("FAIL " name ": " err.Message)
-        FileAppend("FAIL " name ": " err.Message "`n", "*")
+        F08Progress("FAIL " name ": " testError.Message)
+        FileAppend("FAIL " name ": " testError.Message "`n", "*")
     }
 }
 
