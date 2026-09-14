@@ -30,6 +30,7 @@ If implementation evidence requires a cross-cutting change, update the appropria
 - `features/F02_TERMINAL_IDENTITY.md` — F02 project/role presets, identity registry, singleton semantics and terminal title behavior.
 - `features/F03_TERMINAL_KEY_GUARD.md` — F03 policies, context rules, bypass/disable controls and verification.
 - `features/F04_FOCUS_PRESERVING_PASTE.md` — F04 target capture, capability truth, verified background adapter and degraded fallback.
+- `features/F05_MULTILINE_PASTE.md` — F05 conservative classification and explicit whole/line/confirm/cancel delivery modes.
 
 ## Retrieval hints
 
