@@ -31,6 +31,7 @@ class AHQuiverApp {
         this.Modules.Register(F04FocusPreservingPasteModule())
         this.Modules.Register(F05MultilinePasteModule())
         this.Modules.Register(F06TrackerRestartModule())
+        this.Modules.Register(F07ControlSurfaceModule())
         this.Ui := AQTrayUi(this)
         this.Started := false
     }
