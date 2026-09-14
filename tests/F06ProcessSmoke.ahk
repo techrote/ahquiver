@@ -34,13 +34,14 @@ childPath := A_ScriptDir "\F06ChildProcess.ahk"
 workerPid := 0
 newTrackerPid := 0
 oldTrackerPid := 0
+exitCode := 1
 
 try {
     app := F06SmokeApp()
     adapter := F06SystemProcessAdapter(app)
     expectedExe := ""
     SplitPath(A_AhkPath, &expectedExe)
-    preset := Map(
+    trackerPreset := Map(
         "id", "smoke",
         "program", A_AhkPath,
         "args", [childPath, "tracker"],
@@ -56,7 +57,7 @@ try {
         "restore_title", false,
         "window_wait_ms", 1000
     )
-    service := F06TrackerService(app, Map("smoke", preset), F06TrackerRegistry(), adapter)
+    service := F06TrackerService(app, Map("smoke", trackerPreset), F06TrackerRegistry(), adapter)
 
     workerLaunch := AQProcess.Launch(A_AhkPath, [childPath, "worker"], A_ScriptDir)
     if !workerLaunch.IsOk()
@@ -92,10 +93,10 @@ try {
         throw Error("Synthetic worker was disturbed by tracker restart")
 
     FileAppend("PASS F06 real tracker restart preserved synthetic worker`n", "*")
-    ExitApp(0)
+    exitCode := 0
 } catch as smokeError {
     FileAppend("FAIL F06 real tracker smoke: " smokeError.Message "`n", "*")
-    ExitApp(1)
+    exitCode := 1
 } finally {
     if newTrackerPid && ProcessExist(newTrackerPid)
         try ProcessClose(newTrackerPid)
@@ -103,4 +104,7 @@ try {
         try ProcessClose(oldTrackerPid)
     if workerPid && ProcessExist(workerPid)
         try ProcessClose(workerPid)
+    Sleep(100)
 }
+
+ExitApp(exitCode)
