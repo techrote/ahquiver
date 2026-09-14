@@ -55,9 +55,15 @@ class F05FakeConfirmer {
 }
 
 class F05TestLog {
-    Info(*) {}
-    Warn(*) {}
-    Error(*) {}
+    Info(*) {
+        return
+    }
+    Warn(*) {
+        return
+    }
+    Error(*) {
+        return
+    }
 }
 
 class F05TestApp {
