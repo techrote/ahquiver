@@ -56,10 +56,10 @@ class AQControlSurfaceModel {
         return this.App.Actions.Invoke(actionId, parsed.Data["params"])
     }
 
-    ObserveAction(actionId, result) {
-        if !IsObject(result) || !HasProp(result, "Status")
+    ObserveAction(actionId, actionResult) {
+        if !IsObject(actionResult) || !HasProp(actionResult, "Status")
             return
-        status := result.Status
+        status := actionResult.Status
         if status = "ok" || status = "cancelled"
             return
         this.Failures.InsertAt(1, Map(
@@ -143,28 +143,28 @@ class AQTrayUi {
     }
 
     _BuildTray() {
-        menu := A_TrayMenu
-        menu.Delete()
+        trayMenu := A_TrayMenu
+        trayMenu.Delete()
 
         if this.ControlEnabled {
-            menu.Add("Open AHQuiver control panel", ObjBindMethod(this, "ShowControl"))
+            trayMenu.Add("Open AHQuiver control panel", ObjBindMethod(this, "ShowControl"))
             if this.App.Config.GetBool("F07", "action_menu", true)
-                this._AddActionMenu(menu)
-            menu.Add()
+                this._AddActionMenu(trayMenu)
+            trayMenu.Add()
         } else {
-            menu.Add("AHQuiver status", ObjBindMethod(this, "ShowStatus"))
-            menu.Add()
+            trayMenu.Add("AHQuiver status", ObjBindMethod(this, "ShowStatus"))
+            trayMenu.Add()
         }
 
-        menu.Add("Reload configuration", ObjBindMethod(this, "ReloadConfiguration"))
+        trayMenu.Add("Reload configuration", ObjBindMethod(this, "ReloadConfiguration"))
         if this.ControlEnabled
-            menu.Add("Emergency disable modules", ObjBindMethod(this, "EmergencyDisable"))
-        menu.Add()
-        menu.Add("Exit AHQuiver", ObjBindMethod(this, "ExitApplication"))
+            trayMenu.Add("Emergency disable modules", ObjBindMethod(this, "EmergencyDisable"))
+        trayMenu.Add()
+        trayMenu.Add("Exit AHQuiver", ObjBindMethod(this, "ExitApplication"))
         A_IconTip := this.ControlEnabled ? "AHQuiver — control surface" : "AHQuiver"
     }
 
-    _AddActionMenu(menu) {
+    _AddActionMenu(trayMenu) {
         actionMenu := Menu()
         actions := this.App.Actions.List()
         if !actions.Length {
@@ -176,7 +176,7 @@ class AQTrayUi {
                 actionMenu.Add(label, ObjBindMethod(this, "QueueTrayAction", action["id"]))
             }
         }
-        menu.Add("Actions", actionMenu)
+        trayMenu.Add("Actions", actionMenu)
     }
 
     ShowStatus(*) {
@@ -339,9 +339,9 @@ class AQTrayUi {
                 return
         }
 
-        result := this.ControlModel.Invoke(actionId, parameterText)
-        TrayTip("AHQuiver", actionId ": " result.Status)
-        if source = "tray" && result.Status = "invalid" {
+        actionResult := this.ControlModel.Invoke(actionId, parameterText)
+        TrayTip("AHQuiver", actionId ": " actionResult.Status)
+        if source = "tray" && actionResult.Status = "invalid" {
             this.ShowControl()
             this._SelectAction(actionId)
         } else {
@@ -361,21 +361,21 @@ class AQTrayUi {
     }
 
     ReloadConfiguration(*) {
-        result := this.App.ReloadConfiguration()
+        reloadResult := this.App.ReloadConfiguration()
         this.Init()
-        if result.IsOk()
+        if reloadResult.IsOk()
             TrayTip("AHQuiver", "Configuration reloaded")
         else
-            MsgBox(result.Message, "AHQuiver configuration", "Iconx")
-        return result
+            MsgBox(reloadResult.Message, "AHQuiver configuration", "Iconx")
+        return reloadResult
     }
 
     EmergencyDisable(*) {
-        result := this.App.Modules.StopAll()
+        disableResult := this.App.Modules.StopAll()
         this.DisableControlSurface()
         this.Init()
         TrayTip("AHQuiver", "All feature modules disabled for this session")
-        return result
+        return disableResult
     }
 
     ExitApplication(*) {
