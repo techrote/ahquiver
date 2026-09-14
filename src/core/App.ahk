@@ -30,6 +30,7 @@ class AHQuiverApp {
         this.Modules.Register(F03TerminalKeyGuardModule())
         this.Modules.Register(F04FocusPreservingPasteModule())
         this.Modules.Register(F05MultilinePasteModule())
+        this.Modules.Register(F06TrackerRestartModule())
         this.Ui := AQTrayUi(this)
         this.Started := false
     }
