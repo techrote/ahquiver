@@ -31,7 +31,8 @@ If implementation evidence requires a cross-cutting change, update the appropria
 - `features/F03_TERMINAL_KEY_GUARD.md` — F03 policies, context rules, bypass/disable controls and verification.
 - `features/F04_FOCUS_PRESERVING_PASTE.md` — F04 target capture, capability truth, verified background adapter and degraded fallback.
 - `features/F05_MULTILINE_PASTE.md` — F05 conservative classification and explicit whole/line/confirm/cancel delivery modes.
+- `features/F06_TRACKER_RESTART.md` — F06 owned-PID tracker registry, graceful/force restart sequence, adoption and worker protection.
 
 ## Retrieval hints
 
-Search by stable feature ID `F01` through `F13`, architecture tags `CORE`, `CTX`, `ACTION`, `CFG`, `IPC`, `UI`, `TERM`, or concrete service names such as `AQActionRegistry`, `AQContextService`, `AQWindowQuery`, `AQClipboardGuard`, `AQIdentityRegistry`, and `AQModuleHost`.
+Search by stable feature ID `F01` through `F13`, architecture tags `CORE`, `CTX`, `ACTION`, `CFG`, `IPC`, `UI`, `TERM`, or concrete service names such as `AQActionRegistry`, `AQContextService`, `AQWindowQuery`, `AQClipboardGuard`, `AQIdentityRegistry`, `F06TrackerRegistry`, and `AQModuleHost`.
